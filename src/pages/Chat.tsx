@@ -1,4 +1,3 @@
-
 // I'll update the Chat component to fix the streaming response handling
 // and improve theme handling in the application
 
@@ -15,7 +14,6 @@ import SettingsDialog from '@/components/SettingsDialog';
 import ToolsDialog from '@/components/ToolsDialog';
 import ImagePreviewDialog from '@/components/ImagePreviewDialog';
 import { Button } from "@/components/ui/button";
-
 interface Message {
   id: string;
   role: 'user' | 'assistant' | 'system';
@@ -25,32 +23,29 @@ interface Message {
   type?: 'text' | 'image';
   imageUrl?: string;
 }
-
 interface AppSettings {
   theme: string;
   streamEnabled: boolean;
   functionCallingEnabled: boolean;
 }
-
 interface Tool {
   id: string;
   name: string;
   description: string;
   enabled: boolean;
 }
-
 const Chat = () => {
   // Authentication state
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<any>(null);
-  
+
   // Chat state
   const [prompt, setPrompt] = useState('');
   const [selectedModel, setSelectedModel] = useState('gpt-4o-mini');
   const [conversation, setConversation] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isImageGenerating, setIsImageGenerating] = useState(false);
-  
+
   // Dialog states
   const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false);
   const [isToolsDialogOpen, setIsToolsDialogOpen] = useState(false);
@@ -58,54 +53,49 @@ const Chat = () => {
   const [isVisionDialogOpen, setIsVisionDialogOpen] = useState(false);
   const [isImagePreviewOpen, setIsImagePreviewOpen] = useState(false);
   const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
-  
+
   // Image to text state
   const [extractedText, setExtractedText] = useState("");
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [selectRegion, setSelectRegion] = useState(false);
-  
+
   // Voice recognition state
   const [isListening, setIsListening] = useState(false);
   const [recognitionInstance, setRecognitionInstance] = useState<any>(null);
-  
+
   // Text-to-image mode
   const [isTxtImgMode, setIsTxtImgMode] = useState(false);
-  
+
   // Text-to-speech state
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [audioPlayer, setAudioPlayer] = useState<HTMLAudioElement | null>(null);
   const [audioProgress, setAudioProgress] = useState(0);
-  
+
   // App settings
   const [settings, setSettings] = useState<AppSettings>({
     theme: 'dark',
     streamEnabled: false,
     functionCallingEnabled: false
   });
-  
+
   // Available tools
-  const [tools, setTools] = useState<Tool[]>([
-    {
-      id: "weather",
-      name: "Weather",
-      description: "Get current weather for a location",
-      enabled: true
-    },
-    {
-      id: "calculator",
-      name: "Calculator",
-      description: "Perform calculations",
-      enabled: false
-    },
-    {
-      id: "search",
-      name: "Web Search",
-      description: "Search the web for information",
-      enabled: false
-    }
-  ]);
-  
+  const [tools, setTools] = useState<Tool[]>([{
+    id: "weather",
+    name: "Weather",
+    description: "Get current weather for a location",
+    enabled: true
+  }, {
+    id: "calculator",
+    name: "Calculator",
+    description: "Perform calculations",
+    enabled: false
+  }, {
+    id: "search",
+    name: "Web Search",
+    description: "Search the web for information",
+    enabled: false
+  }]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Scroll to bottom when messages change
@@ -123,10 +113,7 @@ const Chat = () => {
       recognition.continuous = true;
       recognition.interimResults = true;
       recognition.onresult = (event: any) => {
-        const transcript = Array.from(event.results)
-          .map((result: any) => result[0])
-          .map((result: any) => result.transcript)
-          .join('');
+        const transcript = Array.from(event.results).map((result: any) => result[0]).map((result: any) => result.transcript).join('');
         setPrompt(transcript);
       };
       recognition.onerror = (event: any) => {
@@ -176,7 +163,7 @@ const Chat = () => {
         });
       }
     }
-    
+
     // Load settings from localStorage
     const savedSettings = localStorage.getItem('puterChatSettings');
     if (savedSettings) {
@@ -186,7 +173,7 @@ const Chat = () => {
         console.error("Failed to parse saved settings:", e);
       }
     }
-    
+
     // Load tools from localStorage
     const savedTools = localStorage.getItem('puterChatTools');
     if (savedTools) {
@@ -204,27 +191,25 @@ const Chat = () => {
     // Apply theme when settings change
     document.documentElement.setAttribute('data-theme', settings.theme);
   }, [settings]);
-  
+
   // Save tools to localStorage when they change
   useEffect(() => {
     localStorage.setItem('puterChatTools', JSON.stringify(tools));
   }, [tools]);
-  
+
   // Handle audio player progress updates
   useEffect(() => {
     if (audioPlayer) {
       const updateProgress = () => {
         if (audioPlayer.duration) {
-          setAudioProgress((audioPlayer.currentTime / audioPlayer.duration) * 100);
+          setAudioProgress(audioPlayer.currentTime / audioPlayer.duration * 100);
         }
       };
-      
       audioPlayer.addEventListener('timeupdate', updateProgress);
       audioPlayer.addEventListener('ended', () => {
         setIsSpeaking(false);
         setAudioProgress(0);
       });
-      
       return () => {
         audioPlayer.removeEventListener('timeupdate', updateProgress);
         audioPlayer.removeEventListener('ended', () => {
@@ -234,7 +219,6 @@ const Chat = () => {
       };
     }
   }, [audioPlayer]);
-
   const toggleListening = () => {
     if (isListening) {
       if (recognitionInstance) {
@@ -254,7 +238,6 @@ const Chat = () => {
       }
     }
   };
-
   const handleSignIn = async () => {
     try {
       await window.puter.auth.signIn();
@@ -276,7 +259,6 @@ const Chat = () => {
       });
     }
   };
-
   const handleSignOut = () => {
     window.puter.auth.signOut();
     setIsAuthenticated(false);
@@ -288,7 +270,6 @@ const Chat = () => {
       description: "You have been signed out successfully"
     });
   };
-
   const handleSendPrompt = async () => {
     if (!prompt.trim()) return;
 
@@ -303,7 +284,6 @@ const Chat = () => {
       timestamp: new Date()
     };
     setConversation(prev => [...prev, userMessage]);
-    
     const promptText = prompt;
     setPrompt('');
 
@@ -311,7 +291,6 @@ const Chat = () => {
     if (isTxtImgMode) {
       setIsLoading(true);
       setIsImageGenerating(true);
-      
       try {
         // Add placeholder while image is generating
         const placeholderId = Math.random().toString(36).substring(2, 11);
@@ -324,26 +303,21 @@ const Chat = () => {
           type: 'image'
         };
         setConversation(prev => [...prev, placeholderMessage]);
-        
         if (typeof window !== 'undefined' && window.puter) {
           const image = await window.puter.ai.txt2img(promptText);
 
           // Replace placeholder with actual image
-          setConversation(prev => prev.map(msg => 
-            msg.id === placeholderId ? {
-              ...msg,
-              imageUrl: image.src
-            } : msg
-          ));
+          setConversation(prev => prev.map(msg => msg.id === placeholderId ? {
+            ...msg,
+            imageUrl: image.src
+          } : msg));
         } else {
           // Mock for development
           setTimeout(() => {
-            setConversation(prev => prev.map(msg => 
-              msg.id === placeholderId ? {
-                ...msg,
-                imageUrl: "https://via.placeholder.com/300x350?text=Image+Generation+Mock"
-              } : msg
-            ));
+            setConversation(prev => prev.map(msg => msg.id === placeholderId ? {
+              ...msg,
+              imageUrl: "https://via.placeholder.com/300x350?text=Image+Generation+Mock"
+            } : msg));
           }, 2000);
         }
       } catch (error) {
@@ -360,19 +334,18 @@ const Chat = () => {
     } else {
       // Regular text chat
       setIsLoading(true);
-      
       try {
         if (typeof window !== 'undefined' && window.puter) {
           // Prepare options for the chat request
           const chatOptions: any = {
             model: selectedModel
           };
-          
+
           // Add streaming if enabled
           if (settings.streamEnabled) {
             chatOptions.stream = true;
           }
-          
+
           // Add tools if function calling is enabled
           if (settings.functionCallingEnabled) {
             chatOptions.tools = tools.filter(t => t.enabled).map(t => {
@@ -396,7 +369,7 @@ const Chat = () => {
               };
             });
           }
-          
+
           // Create assistant message placeholder
           const assistantId = Math.random().toString(36).substring(2, 11);
           const assistantMessage: Message = {
@@ -406,16 +379,13 @@ const Chat = () => {
             timestamp: new Date(),
             model: selectedModel
           };
-          
           setConversation(prev => [...prev, assistantMessage]);
-          
           if (settings.streamEnabled) {
             // Handle streaming
             const streamResponse = await window.puter.ai.chat(promptText, chatOptions);
-            
+
             // Update the message content as chunks arrive
             let fullContent = '';
-            
             try {
               // Fixed: Properly check if streamResponse is async iterable
               if (streamResponse && typeof streamResponse[Symbol.asyncIterator] === 'function') {
@@ -423,24 +393,20 @@ const Chat = () => {
                   if (chunk?.text) {
                     fullContent += chunk.text;
                     // Update the message with the current content
-                    setConversation(prev => prev.map(msg => 
-                      msg.id === assistantId ? {
-                        ...msg,
-                        content: fullContent
-                      } : msg
-                    ));
+                    setConversation(prev => prev.map(msg => msg.id === assistantId ? {
+                      ...msg,
+                      content: fullContent
+                    } : msg));
                   }
                 }
               } else {
                 // Fallback for non-streaming responses in streaming mode
                 console.warn("Stream response not iterable, falling back to normal response mode");
                 const content = streamResponse.message?.content || "Failed to get a streaming response";
-                setConversation(prev => prev.map(msg => 
-                  msg.id === assistantId ? {
-                    ...msg,
-                    content: content
-                  } : msg
-                ));
+                setConversation(prev => prev.map(msg => msg.id === assistantId ? {
+                  ...msg,
+                  content: content
+                } : msg));
               }
             } catch (error) {
               console.error("Error streaming response:", error);
@@ -453,14 +419,12 @@ const Chat = () => {
           } else {
             // Non-streaming response
             const response = await window.puter.ai.chat(promptText, chatOptions);
-            
+
             // Update the assistant message with the response
-            setConversation(prev => prev.map(msg => 
-              msg.id === assistantId ? {
-                ...msg,
-                content: response.message.content
-              } : msg
-            ));
+            setConversation(prev => prev.map(msg => msg.id === assistantId ? {
+              ...msg,
+              content: response.message.content
+            } : msg));
           }
         } else {
           // Mock response for development
@@ -487,7 +451,6 @@ const Chat = () => {
       }
     }
   };
-
   const handleDeleteMessage = (messageId: string) => {
     // Find the index of the message to delete
     const messageIndex = conversation.findIndex(msg => msg.id === messageId);
@@ -505,13 +468,11 @@ const Chat = () => {
     else {
       setConversation(prev => prev.filter(msg => msg.id !== messageId));
     }
-    
     toast({
       title: "Message deleted",
       description: "Message has been removed from the conversation"
     });
   };
-
   const handleResendMessage = (messageId: string) => {
     const message = conversation.find(msg => msg.id === messageId);
     if (message && message.role === 'user') {
@@ -524,21 +485,17 @@ const Chat = () => {
       }
     }
   };
-
   const toggleTxtImgMode = () => {
     setIsTxtImgMode(prev => !prev);
     if (isListening) {
       toggleListening(); // Stop listening if active
     }
   };
-
   const handleExtractText = async () => {
     if (!selectedImage) return;
-    
     setIsLoading(true);
     try {
       let extractedText = "";
-      
       if (typeof window !== 'undefined' && window.puter) {
         extractedText = await window.puter.ai.img2txt(selectedImage);
       } else {
@@ -546,9 +503,8 @@ const Chat = () => {
         extractedText = "This is mock extracted text when Puter API is not available.";
         await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate delay
       }
-      
       setExtractedText(extractedText);
-      
+
       // Add to conversation
       const textMessage: Message = {
         id: Math.random().toString(36).substring(2, 11),
@@ -557,7 +513,6 @@ const Chat = () => {
         timestamp: new Date(),
         model: selectedModel
       };
-      
       setConversation(prev => [...prev, textMessage]);
     } catch (error) {
       console.error("Failed to extract text:", error);
@@ -570,10 +525,8 @@ const Chat = () => {
       setIsLoading(false);
     }
   };
-
   const handleConvertToBase64 = () => {
     if (!selectedImage) return;
-    
     const reader = new FileReader();
     reader.onload = () => {
       const base64String = reader.result as string;
@@ -586,7 +539,6 @@ const Chat = () => {
     };
     reader.readAsDataURL(selectedImage);
   };
-
   const handleVisionCaptured = (imageData: string, description: string) => {
     // Add captured image to conversation
     const imageMessage: Message = {
@@ -597,7 +549,7 @@ const Chat = () => {
       type: 'image',
       imageUrl: imageData
     };
-    
+
     // Add description as assistant message
     const descriptionMessage: Message = {
       id: Math.random().toString(36).substring(2, 11),
@@ -606,26 +558,18 @@ const Chat = () => {
       timestamp: new Date(),
       model: selectedModel
     };
-    
     setConversation(prev => [...prev, imageMessage, descriptionMessage]);
   };
-  
   const handleSettingsChange = (newSettings: AppSettings) => {
     setSettings(newSettings);
-    
+
     // Apply theme
     document.documentElement.setAttribute('data-theme', newSettings.theme);
-    
+
     // If streaming was toggled, update the model to a compatible one
     if (newSettings.streamEnabled !== settings.streamEnabled) {
       // Check if current model is compatible with streaming
-      const STREAM_COMPATIBLE_MODELS = [
-        "gpt-4o-mini", "gpt-4o", "gpt-4.5-preview",
-        "claude-3-7-sonnet", "claude-3-5-sonnet",
-        "mistral-large-latest", "pixtral-large-latest", "codestral-latest",
-        "grok-beta"
-      ];
-      
+      const STREAM_COMPATIBLE_MODELS = ["gpt-4o-mini", "gpt-4o", "gpt-4.5-preview", "claude-3-7-sonnet", "claude-3-5-sonnet", "mistral-large-latest", "pixtral-large-latest", "codestral-latest", "grok-beta"];
       if (newSettings.streamEnabled && !STREAM_COMPATIBLE_MODELS.includes(selectedModel)) {
         // Switch to a compatible model
         setSelectedModel("gpt-4o-mini");
@@ -635,15 +579,11 @@ const Chat = () => {
         });
       }
     }
-    
+
     // If function calling was toggled, update the model to a compatible one
     if (newSettings.functionCallingEnabled !== settings.functionCallingEnabled) {
       // Check if current model is compatible with function calling
-      const FUNCTION_CALLING_MODELS = [
-        "gpt-4o-mini", "gpt-4o", "gpt-4.5-preview",
-        "claude-3-7-sonnet", "claude-3-5-sonnet"
-      ];
-      
+      const FUNCTION_CALLING_MODELS = ["gpt-4o-mini", "gpt-4o", "gpt-4.5-preview", "claude-3-7-sonnet", "claude-3-5-sonnet"];
       if (newSettings.functionCallingEnabled && !FUNCTION_CALLING_MODELS.includes(selectedModel)) {
         // Switch to a compatible model
         setSelectedModel("gpt-4o-mini");
@@ -654,7 +594,6 @@ const Chat = () => {
       }
     }
   };
-  
   const handlePlayMessage = (messageId: string) => {
     const message = conversation.find(msg => msg.id === messageId);
     if (message && message.content) {
@@ -687,7 +626,6 @@ const Chat = () => {
       }
     }
   };
-  
   const toggleSpeaking = () => {
     if (audioPlayer) {
       if (isSpeaking) {
@@ -698,15 +636,12 @@ const Chat = () => {
       setIsSpeaking(!isSpeaking);
     }
   };
-  
   const handleImageClick = (imageUrl: string) => {
     setPreviewImageUrl(imageUrl);
     setIsImagePreviewOpen(true);
   };
-
   if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-background to-accent/20 text-foreground">
+    return <div className="min-h-screen bg-gradient-to-b from-background to-accent/20 text-foreground">
         <AppHeader />
         
         <div className="container mx-auto px-4 py-12">
@@ -725,42 +660,25 @@ const Chat = () => {
             </div>
           </div>
         </div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div data-theme={settings.theme} className="min-h-screen bg-gradient-to-b from-background to-accent/20 text-foreground">
+  return <div data-theme={settings.theme} className="min-h-screen bg-gradient-to-b from-background to-accent/20 text-foreground">
       <AppHeader />
       
-      <div className="container mx-auto px-4 py-6">
-        <ChatHeader 
-          selectedModel={selectedModel}
-          setSelectedModel={setSelectedModel}
-          isTxtImgMode={isTxtImgMode}
-          toggleTxtImgMode={toggleTxtImgMode}
-          openImgTxtDialog={() => setIsImgTxtDialogOpen(true)}
-          openSettingsDialog={() => setIsSettingsDialogOpen(true)}
-          openToolsDialog={() => setIsToolsDialogOpen(true)}
-          user={user}
-          handleSignOut={handleSignOut}
-          settings={settings}
-        />
+      <div className="container mx-auto px-4 ">
+        <ChatHeader selectedModel={selectedModel} setSelectedModel={setSelectedModel} isTxtImgMode={isTxtImgMode} toggleTxtImgMode={toggleTxtImgMode} openImgTxtDialog={() => setIsImgTxtDialogOpen(true)} openSettingsDialog={() => setIsSettingsDialogOpen(true)} openToolsDialog={() => setIsToolsDialogOpen(true)} user={user} handleSignOut={handleSignOut} settings={settings} />
         
         <div className="bg-card rounded-lg p-4 mb-4 h-[calc(100vh-250px)] overflow-y-auto border border-border">
-          {conversation.length === 0 && (
-            <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+          {conversation.length === 0 && <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
               <p>No messages yet</p>
               <p className="text-sm mt-2">Send a message to start chatting with AI</p>
               <p className="text-xs mt-1">{isTxtImgMode ? "Text-to-Image mode is active" : ""}</p>
-            </div>
-          )}
+            </div>}
           
           {conversation.map(msg => {
-            if (msg.type === 'image' && !msg.imageUrl) {
-              // Show placeholder for images being generated
-              return (
-                <div key={msg.id} className="mb-4 text-left">
+          if (msg.type === 'image' && !msg.imageUrl) {
+            // Show placeholder for images being generated
+            return <div key={msg.id} className="mb-4 text-left">
                   <div className="text-xs text-muted-foreground mb-1">
                     {msg.role === 'assistant' ? 'Assistant' : 'You'}: {msg.timestamp.toLocaleTimeString()}
                   </div>
@@ -768,105 +686,42 @@ const Chat = () => {
                     <div>{msg.content}</div>
                     <ImagePlaceholder isLoading={isImageGenerating} />
                   </div>
-                </div>
-              );
-            } else {
-              return (
-                <ChatMessage 
-                  key={msg.id}
-                  content={msg.content}
-                  isUser={msg.role === 'user'}
-                  timestamp={msg.timestamp}
-                  sender={msg.role === 'user' ? 'You' : 'AI'}
-                  onDelete={() => handleDeleteMessage(msg.id)}
-                  onResend={() => handleResendMessage(msg.id)}
-                  onPlay={() => handlePlayMessage(msg.id)}
-                  type={msg.type}
-                  imageUrl={msg.imageUrl}
-                  onImageClick={handleImageClick}
-                />
-              );
-            }
-          })}
+                </div>;
+          } else {
+            return <ChatMessage key={msg.id} content={msg.content} isUser={msg.role === 'user'} timestamp={msg.timestamp} sender={msg.role === 'user' ? 'You' : 'AI'} onDelete={() => handleDeleteMessage(msg.id)} onResend={() => handleResendMessage(msg.id)} onPlay={() => handlePlayMessage(msg.id)} type={msg.type} imageUrl={msg.imageUrl} onImageClick={handleImageClick} />;
+          }
+        })}
           
-          {isLoading && !isImageGenerating && (
-            <div className="flex space-x-2 mt-4 justify-center">
+          {isLoading && !isImageGenerating && <div className="flex space-x-2 mt-4 justify-center">
               <div className="w-3 h-3 rounded-full bg-primary animate-bounce"></div>
               <div className="w-3 h-3 rounded-full bg-primary animate-bounce" style={{
-                animationDelay: '0.2s'
-              }}></div>
+            animationDelay: '0.2s'
+          }}></div>
               <div className="w-3 h-3 rounded-full bg-primary animate-bounce" style={{
-                animationDelay: '0.4s'
-              }}></div>
-            </div>
-          )}
+            animationDelay: '0.4s'
+          }}></div>
+            </div>}
           
           <div ref={messagesEndRef} />
         </div>
         
-        <ChatInput 
-          prompt={prompt}
-          setPrompt={setPrompt}
-          handleSendPrompt={handleSendPrompt}
-          isLoading={isLoading}
-          isListening={isListening}
-          toggleListening={toggleListening}
-          isTxtImgMode={isTxtImgMode}
-          selectedModel={selectedModel}
-          openVisionDialog={() => setIsVisionDialogOpen(true)}
-          isSpeaking={isSpeaking}
-          toggleSpeaking={toggleSpeaking}
-          audioProgress={audioProgress}
-        />
+        <ChatInput prompt={prompt} setPrompt={setPrompt} handleSendPrompt={handleSendPrompt} isLoading={isLoading} isListening={isListening} toggleListening={toggleListening} isTxtImgMode={isTxtImgMode} selectedModel={selectedModel} openVisionDialog={() => setIsVisionDialogOpen(true)} isSpeaking={isSpeaking} toggleSpeaking={toggleSpeaking} audioProgress={audioProgress} />
       </div>
       
       {/* Image to Text Dialog */}
-      <ImageToTextDialog 
-        isOpen={isImgTxtDialogOpen}
-        onOpenChange={setIsImgTxtDialogOpen}
-        selectedImage={selectedImage}
-        setSelectedImage={setSelectedImage}
-        previewUrl={previewUrl}
-        setPreviewUrl={setPreviewUrl}
-        extractedText={extractedText}
-        isLoading={isLoading}
-        handleExtractText={handleExtractText}
-        handleConvertToBase64={handleConvertToBase64}
-        selectRegion={selectRegion}
-        setSelectRegion={setSelectRegion}
-      />
+      <ImageToTextDialog isOpen={isImgTxtDialogOpen} onOpenChange={setIsImgTxtDialogOpen} selectedImage={selectedImage} setSelectedImage={setSelectedImage} previewUrl={previewUrl} setPreviewUrl={setPreviewUrl} extractedText={extractedText} isLoading={isLoading} handleExtractText={handleExtractText} handleConvertToBase64={handleConvertToBase64} selectRegion={selectRegion} setSelectRegion={setSelectRegion} />
       
       {/* Vision Dialog */}
-      <VisionDialog 
-        isOpen={isVisionDialogOpen}
-        onOpenChange={setIsVisionDialogOpen}
-        onImageCaptured={handleVisionCaptured}
-      />
+      <VisionDialog isOpen={isVisionDialogOpen} onOpenChange={setIsVisionDialogOpen} onImageCaptured={handleVisionCaptured} />
       
       {/* Settings Dialog */}
-      <SettingsDialog
-        isOpen={isSettingsDialogOpen}
-        onOpenChange={setIsSettingsDialogOpen}
-        settings={settings}
-        onSettingsChange={handleSettingsChange}
-      />
+      <SettingsDialog isOpen={isSettingsDialogOpen} onOpenChange={setIsSettingsDialogOpen} settings={settings} onSettingsChange={handleSettingsChange} />
       
       {/* Tools Dialog */}
-      <ToolsDialog
-        isOpen={isToolsDialogOpen}
-        onOpenChange={setIsToolsDialogOpen}
-        tools={tools}
-        onToolsChange={setTools}
-      />
+      <ToolsDialog isOpen={isToolsDialogOpen} onOpenChange={setIsToolsDialogOpen} tools={tools} onToolsChange={setTools} />
       
       {/* Image Preview Dialog */}
-      <ImagePreviewDialog
-        isOpen={isImagePreviewOpen}
-        onOpenChange={setIsImagePreviewOpen}
-        imageUrl={previewImageUrl}
-      />
-    </div>
-  );
+      <ImagePreviewDialog isOpen={isImagePreviewOpen} onOpenChange={setIsImagePreviewOpen} imageUrl={previewImageUrl} />
+    </div>;
 };
-
 export default Chat;

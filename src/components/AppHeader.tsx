@@ -12,7 +12,7 @@ const AppHeader: React.FC = () => {
   const handleOpenQRModal = () => {
     setQRModalOpen(true);
   };
-  return <header className="container mx-auto px-4 flex justify-between items-center py-[15px]">
+  return <header className="container mx-auto px-6 flex justify-between items-center py-[5px]">
       <div className="flex items-center">
         <Link to="/">
           <span className="text-2xl font-bold text-blue-400">Puter</span>

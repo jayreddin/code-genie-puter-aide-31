@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
@@ -75,7 +74,7 @@ const ChatHeader = ({
     return filteredModels;
   };
   const filteredModels = getFilteredModels();
-  return <div className="flex flex-col mb-6">
+  return <div className="flex flex-col mb-3">
       <div className="flex items-center justify-between mb-2">
         
       </div>
