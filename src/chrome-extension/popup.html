@@ -5,6 +5,7 @@
     <title>Puter Code Assistant</title>
     <meta charset="utf-8">
     <link rel="stylesheet" href="popup.css">
+    <script src="https://js.puter.com/v2/" defer></script>
   </head>
   <body>
     <div class="container">
@@ -20,6 +21,7 @@
             <button id="save-api-key">Save</button>
           </div>
           <div class="api-status" id="api-status">Not configured</div>
+          <button id="sign-in-puter" class="puter-auth-button">Sign in with Puter</button>
         </div>
 
         <div class="model-selection">
@@ -36,6 +38,9 @@
           <button id="generate-code" class="action-button" disabled>Generate Code</button>
           <button id="debug-code" class="action-button" disabled>Debug Code</button>
           <button id="fix-code" class="action-button" disabled>Fix Code</button>
+        </div>
+        <div class="selection-buttons mt-4">
+          <button id="select-region" class="selection-button" disabled>Select Region</button>
         </div>
       </div>
 

@@ -11,6 +11,8 @@
   --success: #a6e3a1;
   --error: #f38ba8;
   --warning: #fab387;
+  --info: #74c7ec;
+  --danger: #f38ba8;
 }
 
 * {
@@ -112,6 +114,15 @@ button:disabled {
   text-align: center;
 }
 
+.selection-button {
+  width: 100%;
+  margin-top: 8px;
+}
+
+.selection-button.active {
+  background-color: var(--danger);
+}
+
 .api-status {
   font-size: 12px;
   margin-top: 4px;
@@ -163,4 +174,60 @@ footer {
   align-self: flex-end;
   font-size: 12px;
   padding: 4px 8px;
+}
+
+/* Puter authentication button */
+.puter-auth-button {
+  background-color: var(--success);
+  margin-top: 8px;
+  width: 100%;
+}
+
+.puter-auth-button:hover {
+  background-color: #8ad88a;
+}
+
+.mt-4 {
+  margin-top: 16px;
+}
+
+/* Browser info display */
+.browser-info {
+  font-size: 12px;
+  color: var(--info);
+  padding: 4px 8px;
+  border-radius: 4px;
+  background-color: rgba(116, 199, 236, 0.1);
+  margin-top: 8px;
+  text-align: center;
+}
+
+/* Optgroup styling for model select */
+optgroup {
+  font-weight: bold;
+  color: var(--secondary);
+  background-color: var(--darker-bg);
+}
+
+option {
+  font-weight: normal;
+  padding: 4px;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--darker-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
 }

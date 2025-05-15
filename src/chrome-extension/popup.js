@@ -1,5 +1,6 @@
 
 import { puterAPIService } from '../services/PuterAPIService.js';
+import { aiModels } from '../data/aiModels.js';
 
 // DOM elements
 const apiKeyInput = document.getElementById('api-key');
@@ -11,6 +12,129 @@ const generateCodeButton = document.getElementById('generate-code');
 const debugCodeButton = document.getElementById('debug-code');
 const fixCodeButton = document.getElementById('fix-code');
 const statusMessageElement = document.getElementById('status-message');
+const selectRegionButton = document.getElementById('select-region');
+const signInWithPuterButton = document.getElementById('sign-in-puter');
+
+let regionSelectionActive = false;
+let browserInfo = {
+  name: 'unknown',
+  version: 'unknown'
+};
+
+// Detect browser
+function detectBrowser() {
+  const userAgent = navigator.userAgent;
+  let browserName = "Unknown";
+  let browserVersion = "";
+  
+  // Chrome
+  if (userAgent.indexOf("Chrome") > -1 && userAgent.indexOf("Edg") === -1 && userAgent.indexOf("OPR") === -1) {
+    browserName = "Chrome";
+    browserVersion = userAgent.match(/Chrome\/([0-9.]+)/)[1];
+  }
+  // Firefox
+  else if (userAgent.indexOf("Firefox") > -1) {
+    browserName = "Firefox";
+    browserVersion = userAgent.match(/Firefox\/([0-9.]+)/)[1];
+  }
+  // Edge
+  else if (userAgent.indexOf("Edg") > -1) {
+    browserName = "Edge";
+    browserVersion = userAgent.match(/Edg\/([0-9.]+)/)[1];
+  }
+  // Safari
+  else if (userAgent.indexOf("Safari") > -1 && userAgent.indexOf("Chrome") === -1) {
+    browserName = "Safari";
+    browserVersion = userAgent.match(/Safari\/([0-9.]+)/)[1];
+  }
+  // Opera
+  else if (userAgent.indexOf("OPR") > -1) {
+    browserName = "Opera";
+    browserVersion = userAgent.match(/OPR\/([0-9.]+)/)[1];
+  }
+  
+  browserInfo = {
+    name: browserName,
+    version: browserVersion
+  };
+  
+  // Add browser info to popup
+  const browserInfoElement = document.createElement('div');
+  browserInfoElement.textContent = `Browser: ${browserName} ${browserVersion}`;
+  browserInfoElement.className = 'browser-info';
+  document.querySelector('.container').appendChild(browserInfoElement);
+}
+
+// Check if user is already signed in with Puter
+function checkPuterAuth() {
+  if (window.puter && window.puter.auth.isSignedIn()) {
+    window.puter.auth.getUser().then(user => {
+      signInWithPuterButton.textContent = `Signed in as ${user.username}`;
+      signInWithPuterButton.onclick = handlePuterSignOut;
+      
+      // If the user has a token stored, that means they successfully authenticated
+      chrome.storage.local.get(['puterApiKey'], function(result) {
+        if (!result.puterApiKey) {
+          // If no API key is stored yet, but user is authenticated,
+          // we could potentially get an API key from Puter
+          showStatusMessage('Authenticated with Puter. Use this authentication or set API key manually.', 'info');
+        }
+      });
+    });
+  } else {
+    signInWithPuterButton.textContent = 'Sign in with Puter';
+    signInWithPuterButton.onclick = handlePuterSignIn;
+  }
+}
+
+// Handle Puter sign in
+async function handlePuterSignIn() {
+  try {
+    showStatusMessage('Signing in with Puter...', 'info');
+    if (window.puter) {
+      await window.puter.auth.signIn();
+      const user = await window.puter.auth.getUser();
+      signInWithPuterButton.textContent = `Signed in as ${user.username}`;
+      signInWithPuterButton.onclick = handlePuterSignOut;
+      showStatusMessage('Signed in as ' + user.username, 'success');
+    } else {
+      throw new Error("Puter API not available");
+    }
+  } catch (error) {
+    console.error("Failed to sign in with Puter:", error);
+    showStatusMessage('Failed to sign in with Puter', 'error');
+  }
+}
+
+// Handle Puter sign out
+function handlePuterSignOut() {
+  try {
+    if (window.puter) {
+      window.puter.auth.signOut();
+      signInWithPuterButton.textContent = 'Sign in with Puter';
+      signInWithPuterButton.onclick = handlePuterSignIn;
+      showStatusMessage('Signed out from Puter', 'info');
+    }
+  } catch (error) {
+    console.error("Failed to sign out from Puter:", error);
+    showStatusMessage('Failed to sign out from Puter', 'error');
+  }
+}
+
+// Initialize Puter script
+function initializePuter() {
+  if (typeof window.puter === 'undefined') {
+    const puterScript = document.createElement('script');
+    puterScript.src = "https://js.puter.com/v2/";
+    puterScript.onload = () => {
+      console.log("Puter.js loaded");
+      checkPuterAuth();
+    };
+    document.head.appendChild(puterScript);
+  } else {
+    checkPuterAuth();
+  }
+}
 
 // Check if API key is already saved
 chrome.storage.local.get(['puterApiKey'], function(result) {
@@ -22,6 +146,10 @@ chrome.storage.local.get(['puterApiKey'], function(result) {
     enableInterface();
     loadModels();
   }
+  
+  // Detect browser and initialize Puter
+  detectBrowser();
+  initializePuter();
 });
 
 // Save API key
@@ -53,27 +181,60 @@ saveApiKeyButton.addEventListener('click', async () => {
   }
 });
 
-// Load available models
-async function loadModels() {
-  try {
-    showStatusMessage('Loading models...', 'info');
-    const models = await puterAPIService.getAvailableModels();
+// Populate models from our predefined list
+function populateModelSelect() {
+  // Clear existing options
+  modelSelect.innerHTML = '<option value="">Select a model...</option>';
+  
+  // Group models by provider
+  const groupedModels = aiModels.reduce((groups, model) => {
+    if (!groups[model.provider]) {
+      groups[model.provider] = [];
+    }
+    groups[model.provider].push(model);
+    return groups;
+  }, {});
+  
+  // Add options grouped by provider
+  Object.entries(groupedModels).forEach(([provider, models]) => {
+    const optgroup = document.createElement('optgroup');
+    optgroup.label = provider;
     
-    // Clear existing options
-    modelSelect.innerHTML = '<option value="">Select a model...</option>';
-    
-    // Add new options
     models.forEach(model => {
       const option = document.createElement('option');
       option.value = model.id;
       option.textContent = model.name;
-      modelSelect.appendChild(option);
+      optgroup.appendChild(option);
     });
     
-    modelSelect.disabled = false;
-    showStatusMessage('Models loaded successfully', 'success');
+    modelSelect.appendChild(optgroup);
+  });
+  
+  modelSelect.disabled = false;
+  showStatusMessage('Models loaded from predefined list', 'success');
+}
+
+// Load available models from API
+async function loadModels() {
+  try {
+    showStatusMessage('Loading models...', 'info');
+    
+    // First populate with our predefined list
+    populateModelSelect();
+    
+    // Then try to get from API
+    try {
+      const models = await puterAPIService.getAvailableModels();
+      
+      // If successful, update the list
+      if (models && models.length > 0) {
+        showStatusMessage('Models loaded successfully from API', 'success');
+      }
+    } catch (error) {
+      console.log('Using predefined model list instead of API');
+    }
   } catch (error) {
-    showStatusMessage('Failed to load models', 'error');
+    showStatusMessage('Could not load models from API', 'warning');
   }
 }
 
@@ -87,6 +248,7 @@ function enableInterface() {
   generateCodeButton.disabled = false;
   debugCodeButton.disabled = false;
   fixCodeButton.disabled = false;
+  selectRegionButton.disabled = false;
 }
 
 // Status message display function
@@ -100,6 +262,30 @@ function showStatusMessage(message, type) {
     statusMessageElement.className = '';
   }, 5000);
 }
+
+// Toggle region selection mode
+selectRegionButton.addEventListener('click', () => {
+  regionSelectionActive = !regionSelectionActive;
+  
+  if (regionSelectionActive) {
+    selectRegionButton.textContent = 'Cancel Selection';
+    selectRegionButton.classList.add('active');
+    showStatusMessage('Click on a page element to select it', 'info');
+    
+    // Tell content script to start selection mode
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      chrome.tabs.sendMessage(tabs[0].id, { action: 'startElementSelection' });
+    });
+  } else {
+    selectRegionButton.textContent = 'Select Region';
+    selectRegionButton.classList.remove('active');
+    
+    // Tell content script to cancel selection mode
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      chrome.tabs.sendMessage(tabs[0].id, { action: 'cancelElementSelection' });
+    });
+  }
+});
 
 // Generate code action
 generateCodeButton.addEventListener('click', async () => {
@@ -263,3 +449,17 @@ fixCodeButton.addEventListener('click', async () => {
     );
   });
 });
+
+// Listen for messages from content script
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === 'elementSelected') {
+    regionSelectionActive = false;
+    selectRegionButton.textContent = 'Select Region';
+    selectRegionButton.classList.remove('active');
+    showStatusMessage(`Element selected: ${message.selector}`, 'success');
+  }
+});
+
+// Call these at startup
+detectBrowser();
+initializePuter();
