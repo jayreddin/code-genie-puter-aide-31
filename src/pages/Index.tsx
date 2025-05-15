@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import LiveChat from '../components/LiveChat';
-import QRCodeModal from '../components/QRCodeModal';
+import QRCodeModal from '@/components/QRCodeModal';
 
 const Index = () => {
   const [isQRModalOpen, setIsQRModalOpen] = useState(false);
+  
+  const handleOpenQRModal = () => {
+    setIsQRModalOpen(true);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
@@ -18,7 +21,7 @@ const Index = () => {
             <li><a href="#features" className="hover:text-blue-400 transition-colors">Features</a></li>
             <li><a href="#chrome-extension" className="hover:text-blue-400 transition-colors">Chrome Extension</a></li>
             <li><a href="#mobile-app" className="hover:text-blue-400 transition-colors">Mobile App</a></li>
-            <li><Link to="/chat" className="text-blue-400 hover:text-blue-300 transition-colors">Live Chat</Link></li>
+            <li><Link to="/chat" className="hover:text-blue-400 transition-colors">Chat</Link></li>
           </ul>
         </nav>
       </header>
@@ -37,16 +40,12 @@ const Index = () => {
             >
               Chrome Extension
             </a>
-            <a 
-              href="#download-mobile"
-              onClick={(e) => {
-                e.preventDefault();
-                setIsQRModalOpen(true);
-              }}
+            <button 
+              onClick={handleOpenQRModal} 
               className="px-8 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-md font-medium transition-colors"
             >
               Mobile App
-            </a>
+            </button>
           </div>
         </section>
 
@@ -258,33 +257,25 @@ export default TodoList;`}
                 </li>
               </ul>
               <div className="flex space-x-4">
-                <a 
+                <button 
                   id="download-mobile"
-                  href="#" 
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setIsQRModalOpen(true);
-                  }}
+                  onClick={handleOpenQRModal}
                   className="px-6 py-3 bg-black text-white rounded-md font-medium inline-flex items-center border border-gray-700"
                 >
                   <svg className="mr-2" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
                   </svg>
                   App Store
-                </a>
-                <a 
-                  href="#" 
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setIsQRModalOpen(true);
-                  }}
+                </button>
+                <button
+                  onClick={handleOpenQRModal} 
                   className="px-6 py-3 bg-black text-white rounded-md font-medium inline-flex items-center border border-gray-700"
                 >
                   <svg className="mr-2" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M3.18 23.94c-.44 0-.86-.18-1.18-.5-.32-.32-.5-.74-.5-1.18V1.74c0-.44.18-.86.5-1.18.32-.32.74-.5 1.18-.5h17.64c.44 0 .86.18 1.18.5.32.32.5.74.5 1.18v20.52c0 .44-.18.86-.5 1.18-.32.32-.74.5-1.18.5H3.18zM12 7.74l-6.2-3.56v-.01l6.2-3.56 6.27 3.56-6.27 3.57zm4.76 6.05-4.76-2.73-4.76 2.73v-5.5L12 10.54l4.76 2.75v.5z" />
                   </svg>
                   Google Play
-                </a>
+                </button>
               </div>
             </div>
           </div>
@@ -324,11 +315,14 @@ export default TodoList;`}
         </div>
       </footer>
       
-      {/* Live Chat Component */}
-      <LiveChat />
-      
-      {/* QR Code Modal */}
-      <QRCodeModal isOpen={isQRModalOpen} onClose={() => setIsQRModalOpen(false)} />
+      <QRCodeModal 
+        isOpen={isQRModalOpen}
+        onClose={() => setIsQRModalOpen(false)}
+        appStoreUrl="https://apps.apple.com/app/puter-code-assistant"
+        googlePlayUrl="https://play.google.com/store/apps/details?id=com.puter.codeassistant"
+        title="Download the Puter Code Assistant App"
+        description="Scan the QR code with your phone camera to download our mobile app"
+      />
     </div>
   );
 };

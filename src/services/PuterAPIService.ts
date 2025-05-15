@@ -1,6 +1,4 @@
 
-import axios from 'axios';
-
 // Types for API responses and requests
 export interface PuterModelInfo {
   id: string;
@@ -50,13 +48,19 @@ class PuterAPIService {
 
   async getAvailableModels(): Promise<PuterModelInfo[]> {
     try {
-      // Note: This is a placeholder endpoint, replace with actual Puter API endpoint
-      const response = await axios.get(`${this.baseUrl}/models`, {
+      // Using fetch instead of axios
+      const response = await fetch(`${this.baseUrl}/models`, {
         headers: {
           'Authorization': `Bearer ${this.apiKey}`,
         }
       });
-      return response.data.models;
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      return data.models;
     } catch (error) {
       console.error('Error fetching models:', error);
       throw new Error('Failed to fetch Puter models');
@@ -65,23 +69,30 @@ class PuterAPIService {
 
   async generateCode(request: CodeGenerationRequest): Promise<CodeGenerationResponse> {
     try {
-      // Note: This is a placeholder endpoint, replace with actual Puter API endpoint
-      const response = await axios.post(`${this.baseUrl}/generate`, {
-        model: request.model,
-        prompt: request.prompt,
-        max_tokens: request.maxTokens || 500,
-        temperature: request.temperature || 0.7,
-      }, {
+      // Using fetch instead of axios
+      const response = await fetch(`${this.baseUrl}/generate`, {
+        method: 'POST',
         headers: {
           'Authorization': `Bearer ${this.apiKey}`,
           'Content-Type': 'application/json'
-        }
+        },
+        body: JSON.stringify({
+          model: request.model,
+          prompt: request.prompt,
+          max_tokens: request.maxTokens || 500,
+          temperature: request.temperature || 0.7,
+        })
       });
       
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
       return {
-        generatedCode: response.data.generated_code,
-        explanations: response.data.explanations,
-        alternatives: response.data.alternatives,
+        generatedCode: data.generated_code,
+        explanations: data.explanations,
+        alternatives: data.alternatives,
       };
     } catch (error) {
       console.error('Error generating code:', error);
@@ -91,22 +102,29 @@ class PuterAPIService {
 
   async debugCode(request: CodeDebugRequest): Promise<CodeDebugResponse> {
     try {
-      // Note: This is a placeholder endpoint, replace with actual Puter API endpoint
-      const response = await axios.post(`${this.baseUrl}/debug`, {
-        model: request.model,
-        code: request.code,
-        error: request.error,
-      }, {
+      // Using fetch instead of axios
+      const response = await fetch(`${this.baseUrl}/debug`, {
+        method: 'POST',
         headers: {
           'Authorization': `Bearer ${this.apiKey}`,
           'Content-Type': 'application/json'
-        }
+        },
+        body: JSON.stringify({
+          model: request.model,
+          code: request.code,
+          error: request.error,
+        })
       });
       
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
       return {
-        diagnosis: response.data.diagnosis,
-        suggestions: response.data.suggestions,
-        fixedCode: response.data.fixed_code,
+        diagnosis: data.diagnosis,
+        suggestions: data.suggestions,
+        fixedCode: data.fixed_code,
       };
     } catch (error) {
       console.error('Error debugging code:', error);

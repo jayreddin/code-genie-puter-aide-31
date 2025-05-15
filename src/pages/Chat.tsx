@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 
@@ -15,29 +14,52 @@ interface Message {
 
 const Chat = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [user, setUser] = useState<any>(null);
   const [prompt, setPrompt] = useState('');
   const [selectedModel, setSelectedModel] = useState('gpt-4o-mini');
   const [conversation, setConversation] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  // For demonstration - in a real app, this would check with Puter API
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (username && password) {
+  // Check if user is already signed in
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.puter) {
+      if (window.puter.auth.isSignedIn()) {
+        setIsAuthenticated(true);
+        window.puter.auth.getUser().then(userData => {
+          setUser(userData);
+        });
+      }
+    }
+  }, []);
+
+  const handleSignIn = async () => {
+    try {
+      await window.puter.auth.signIn();
       setIsAuthenticated(true);
+      const userData = await window.puter.auth.getUser();
+      setUser(userData);
       toast({
         title: "Login successful",
-        description: "You're now connected to Puter API"
+        description: `Welcome, ${userData.username}!`
       });
-    } else {
+    } catch (error) {
+      console.error("Login failed:", error);
       toast({
         title: "Login failed",
-        description: "Please enter both username and password",
+        description: "Could not sign in with Puter",
         variant: "destructive"
       });
     }
+  };
+
+  const handleSignOut = () => {
+    window.puter.auth.signOut();
+    setIsAuthenticated(false);
+    setUser(null);
+    toast({
+      title: "Signed out",
+      description: "You have been signed out successfully"
+    });
   };
 
   const handleSendPrompt = async () => {
@@ -98,42 +120,19 @@ const Chat = () => {
         <div className="max-w-md mx-auto bg-gray-800 p-8 rounded-lg shadow-lg">
           <div className="text-center mb-6">
             <h1 className="text-2xl font-bold">
-              <span className="text-blue-400">Puter</span> Authentication
+              <span className="text-blue-400">Puter</span> Chat
             </h1>
-            <p className="text-gray-400 mt-2">Login to access Puter AI capabilities</p>
+            <p className="text-gray-400 mt-2">Sign in to access Puter AI capabilities</p>
           </div>
           
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-1">Username</label>
-              <Input 
-                id="username" 
-                value={username} 
-                onChange={(e) => setUsername(e.target.value)} 
-                placeholder="Enter your Puter username"
-                className="bg-gray-700 border-gray-600 text-white"
-              />
-            </div>
-            
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-1">Password</label>
-              <Input 
-                id="password" 
-                type="password" 
-                value={password} 
-                onChange={(e) => setPassword(e.target.value)} 
-                placeholder="Enter your password"
-                className="bg-gray-700 border-gray-600 text-white"
-              />
-            </div>
-            
+          <div className="flex justify-center">
             <Button 
-              type="submit" 
+              onClick={handleSignIn} 
               className="w-full bg-blue-600 hover:bg-blue-700"
             >
-              Log In
+              Sign in with Puter
             </Button>
-          </form>
+          </div>
         </div>
       </div>
     );
@@ -142,8 +141,23 @@ const Chat = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white p-6">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-2xl font-bold mb-6 flex items-center">
-          <span className="text-blue-400 mr-2">Puter</span> Chat Interface
+        <h1 className="text-2xl font-bold mb-6 flex items-center justify-between">
+          <div>
+            <span className="text-blue-400 mr-2">Puter</span> Chat Interface
+          </div>
+          {user && (
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-normal">Signed in as {user.username}</span>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={handleSignOut}
+                className="border-gray-600 text-gray-200 hover:bg-gray-700"
+              >
+                Sign Out
+              </Button>
+            </div>
+          )}
         </h1>
         
         <Tabs defaultValue="chat" className="w-full">
@@ -232,17 +246,6 @@ const Chat = () => {
                 <p className="text-xs text-gray-400 mt-1">
                   Select which AI model to use for generating responses
                 </p>
-              </div>
-              
-              <div>
-                <h3 className="text-lg font-medium mb-2">Account</h3>
-                <Button 
-                  variant="outline"
-                  onClick={() => setIsAuthenticated(false)}
-                  className="border-gray-600 text-gray-200 hover:bg-gray-700"
-                >
-                  Log Out
-                </Button>
               </div>
             </div>
           </TabsContent>
