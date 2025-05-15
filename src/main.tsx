@@ -3,7 +3,12 @@ import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
 
-// Polyfill for puter.ai if running in development environment
+// Add Puter.js script to the head element
+const puterScript = document.createElement('script');
+puterScript.src = "https://js.puter.com/v2/";
+document.head.appendChild(puterScript);
+
+// Polyfill for puter.ai if running in development environment and puter isn't available
 if (typeof window !== 'undefined' && !window.puter) {
   window.puter = {
     ai: {
@@ -11,7 +16,7 @@ if (typeof window !== 'undefined' && !window.puter) {
         console.log("Mock AI chat called with:", message, options);
         return {
           message: {
-            content: "This is a mock response from Puter AI. In production, this would use the actual Puter AI services."
+            content: `This is a mock response from ${options.model || 'Puter AI'}. In production, this would use the actual Puter AI services.`
           }
         };
       },
@@ -52,8 +57,13 @@ if (typeof window !== 'undefined' && !window.puter) {
     },
     randName: () => `mock-${Math.random().toString(36).substring(2, 7)}`,
     auth: {
-      signIn: async () => true,
-      signOut: () => {},
+      signIn: async () => {
+        console.log("Mock sign in");
+        return { username: 'mock-user', uuid: 'mock-uuid' };
+      },
+      signOut: () => {
+        console.log("Mock sign out");
+      },
       isSignedIn: () => false,
       getUser: async () => ({ uuid: 'mock-uuid', username: 'mock-user', email_confirmed: true })
     },

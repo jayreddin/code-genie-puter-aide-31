@@ -1,30 +1,24 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import QRCodeModal from '@/components/QRCodeModal';
+import ChromeExtensionModal from '@/components/ChromeExtensionModal';
+import AppHeader from '@/components/AppHeader';
 
 const Index = () => {
   const [isQRModalOpen, setIsQRModalOpen] = useState(false);
+  const [isChromeModalOpen, setChromeModalOpen] = useState(false);
   
   const handleOpenQRModal = () => {
     setIsQRModalOpen(true);
   };
 
+  const handleOpenChromeModal = () => {
+    setChromeModalOpen(true);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
-      <header className="container mx-auto px-4 py-8 flex justify-between items-center">
-        <div className="flex items-center">
-          <span className="text-2xl font-bold text-blue-400">Puter</span>
-          <span className="text-2xl font-bold ml-1">Code Assistant</span>
-        </div>
-        <nav>
-          <ul className="flex space-x-6">
-            <li><a href="#features" className="hover:text-blue-400 transition-colors">Features</a></li>
-            <li><a href="#chrome-extension" className="hover:text-blue-400 transition-colors">Chrome Extension</a></li>
-            <li><a href="#mobile-app" className="hover:text-blue-400 transition-colors">Mobile App</a></li>
-            <li><Link to="/chat" className="hover:text-blue-400 transition-colors">Chat</Link></li>
-          </ul>
-        </nav>
-      </header>
+      <AppHeader />
 
       <main className="container mx-auto px-4 py-12">
         <section className="text-center mb-24">
@@ -34,12 +28,12 @@ const Index = () => {
             Available as a Chrome extension and mobile app.
           </p>
           <div className="flex justify-center gap-6">
-            <a 
-              href="#download-chrome" 
+            <button 
+              onClick={handleOpenChromeModal} 
               className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-medium transition-colors"
             >
               Chrome Extension
-            </a>
+            </button>
             <button 
               onClick={handleOpenQRModal} 
               className="px-8 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-md font-medium transition-colors"
@@ -315,13 +309,16 @@ export default TodoList;`}
         </div>
       </footer>
       
+      <ChromeExtensionModal 
+        isOpen={isChromeModalOpen}
+        onClose={() => setChromeModalOpen(false)}
+      />
+      
       <QRCodeModal 
         isOpen={isQRModalOpen}
         onClose={() => setIsQRModalOpen(false)}
-        appStoreUrl="https://apps.apple.com/app/puter-code-assistant"
-        googlePlayUrl="https://play.google.com/store/apps/details?id=com.puter.codeassistant"
         title="Download the Puter Code Assistant App"
-        description="Scan the QR code with your phone camera to download our mobile app"
+        description="Scan the QR code with your phone camera to download our mobile app or open the web version"
       />
     </div>
   );
