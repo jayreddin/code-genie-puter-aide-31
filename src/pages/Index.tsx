@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 
@@ -132,7 +133,7 @@ const Index = () => {
                 </div>
                 <div className="p-4 font-mono text-sm text-gray-300 overflow-hidden" style={{ maxHeight: "300px" }}>
                   <pre className="language-javascript">
-                    {`// Generate a React component for a todo list
+{`// Generate a React component for a todo list
 import React, { useState } from 'react';
 
 const TodoList = () => {
