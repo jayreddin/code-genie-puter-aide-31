@@ -7,6 +7,7 @@ import ChatMessage from '@/components/ChatMessage';
 import ImageToTextDialog from '@/components/ImageToTextDialog';
 import VisionDialog from '@/components/VisionDialog';
 import ImagePlaceholder from '@/components/ImagePlaceholder';
+import { Button } from "@/components/ui/button"; // Import the Button component
 
 interface Message {
   id: string;
