@@ -124,7 +124,7 @@ const VisionDialog = ({ isOpen, onOpenChange, onImageCaptured }: VisionDialogPro
       let description = "";
       
       if (typeof window !== 'undefined' && window.puter) {
-        // Fix: Pass model as part of options object
+        // Fix: Pass options object correctly
         const response = await window.puter.ai.chat("Describe this image in detail", capturedImage, { model: "gpt-4o" });
         description = response.message.content;
       } else {

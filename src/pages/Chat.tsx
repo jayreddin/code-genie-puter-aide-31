@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import AppHeader from '@/components/AppHeader';
 import { toast } from "@/hooks/use-toast";
@@ -406,17 +405,26 @@ const Chat = () => {
             // Update the message content as chunks arrive
             let fullContent = '';
             
-            for await (const chunk of streamResponse) {
-              if (chunk?.text) {
-                fullContent += chunk.text;
-                // Update the message with the current content
-                setConversation(prev => prev.map(msg => 
-                  msg.id === assistantId ? {
-                    ...msg,
-                    content: fullContent
-                  } : msg
-                ));
+            try {
+              for await (const chunk of streamResponse) {
+                if (chunk?.text) {
+                  fullContent += chunk.text;
+                  // Update the message with the current content
+                  setConversation(prev => prev.map(msg => 
+                    msg.id === assistantId ? {
+                      ...msg,
+                      content: fullContent
+                    } : msg
+                  ));
+                }
               }
+            } catch (error) {
+              console.error("Error streaming response:", error);
+              toast({
+                title: "Streaming Error",
+                description: "Failed to stream the response. Please try again.",
+                variant: "destructive"
+              });
             }
           } else {
             // Non-streaming response
