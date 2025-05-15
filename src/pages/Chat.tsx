@@ -406,17 +406,30 @@ const Chat = () => {
             let fullContent = '';
             
             try {
-              for await (const chunk of streamResponse) {
-                if (chunk?.text) {
-                  fullContent += chunk.text;
-                  // Update the message with the current content
-                  setConversation(prev => prev.map(msg => 
-                    msg.id === assistantId ? {
-                      ...msg,
-                      content: fullContent
-                    } : msg
-                  ));
+              // Properly handle streaming responses
+              if (streamResponse && typeof streamResponse[Symbol.asyncIterator] === 'function') {
+                for await (const chunk of streamResponse) {
+                  if (chunk?.text) {
+                    fullContent += chunk.text;
+                    // Update the message with the current content
+                    setConversation(prev => prev.map(msg => 
+                      msg.id === assistantId ? {
+                        ...msg,
+                        content: fullContent
+                      } : msg
+                    ));
+                  }
                 }
+              } else {
+                // Fallback for non-streaming responses in streaming mode
+                console.warn("Stream response not iterable, falling back to normal response mode");
+                const content = streamResponse.message?.content || "Failed to get a streaming response";
+                setConversation(prev => prev.map(msg => 
+                  msg.id === assistantId ? {
+                    ...msg,
+                    content: content
+                  } : msg
+                ));
               }
             } catch (error) {
               console.error("Error streaming response:", error);
