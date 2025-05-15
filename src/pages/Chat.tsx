@@ -387,7 +387,7 @@ const Chat = () => {
           
           <div className="flex flex-wrap items-center justify-between gap-4 mx-auto w-full max-w-xl">
             <div className="flex items-center gap-2 mx-auto">
-              <span className="text-sm text-gray-400">Model:</span>
+              
               <Select value={selectedModel} onValueChange={setSelectedModel}>
                 <SelectTrigger className="w-[220px] bg-gray-800 border-gray-700">
                   <SelectValue placeholder="Select a model" />
