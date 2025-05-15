@@ -1,8 +1,12 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import LiveChat from '../components/LiveChat';
+import QRCodeModal from '../components/QRCodeModal';
 
 const Index = () => {
+  const [isQRModalOpen, setIsQRModalOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
       <header className="container mx-auto px-4 py-8 flex justify-between items-center">
@@ -34,7 +38,11 @@ const Index = () => {
               Chrome Extension
             </a>
             <a 
-              href="#download-mobile" 
+              href="#download-mobile"
+              onClick={(e) => {
+                e.preventDefault();
+                setIsQRModalOpen(true);
+              }}
               className="px-8 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-md font-medium transition-colors"
             >
               Mobile App
@@ -253,6 +261,10 @@ export default TodoList;`}
                 <a 
                   id="download-mobile"
                   href="#" 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setIsQRModalOpen(true);
+                  }}
                   className="px-6 py-3 bg-black text-white rounded-md font-medium inline-flex items-center border border-gray-700"
                 >
                   <svg className="mr-2" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
@@ -262,6 +274,10 @@ export default TodoList;`}
                 </a>
                 <a 
                   href="#" 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setIsQRModalOpen(true);
+                  }}
                   className="px-6 py-3 bg-black text-white rounded-md font-medium inline-flex items-center border border-gray-700"
                 >
                   <svg className="mr-2" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
@@ -307,6 +323,12 @@ export default TodoList;`}
           </div>
         </div>
       </footer>
+      
+      {/* Live Chat Component */}
+      <LiveChat />
+      
+      {/* QR Code Modal */}
+      <QRCodeModal isOpen={isQRModalOpen} onClose={() => setIsQRModalOpen(false)} />
     </div>
   );
 };
