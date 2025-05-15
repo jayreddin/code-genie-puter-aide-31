@@ -52,16 +52,28 @@ const LiveChat = () => {
 
     try {
       // Use Puter AI chat API to get a response
-      const response = await puter.ai.chat(message);
-      
-      // Add AI response to chat
-      const assistantMessage: Message = {
-        content: response.message.content,
-        isUser: false,
-        timestamp: new Date()
-      };
-      
-      setMessages(prev => [...prev, assistantMessage]);
+      if (typeof window !== 'undefined' && window.puter) {
+        const response = await window.puter.ai.chat(message);
+        
+        // Add AI response to chat
+        const assistantMessage: Message = {
+          content: response.message.content,
+          isUser: false,
+          timestamp: new Date()
+        };
+        
+        setMessages(prev => [...prev, assistantMessage]);
+      } else {
+        // For development environments where puter may not be available
+        setTimeout(() => {
+          const mockResponse: Message = {
+            content: "This is a mock response since Puter API is not available in this environment.",
+            isUser: false,
+            timestamp: new Date()
+          };
+          setMessages(prev => [...prev, mockResponse]);
+        }, 1000);
+      }
     } catch (error) {
       console.error("Failed to get response from Puter AI:", error);
       toast({

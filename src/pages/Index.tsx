@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import LiveChat from '../components/LiveChat';
@@ -19,6 +18,7 @@ const Index = () => {
             <li><a href="#features" className="hover:text-blue-400 transition-colors">Features</a></li>
             <li><a href="#chrome-extension" className="hover:text-blue-400 transition-colors">Chrome Extension</a></li>
             <li><a href="#mobile-app" className="hover:text-blue-400 transition-colors">Mobile App</a></li>
+            <li><Link to="/chat" className="text-blue-400 hover:text-blue-300 transition-colors">Live Chat</Link></li>
           </ul>
         </nav>
       </header>

@@ -14,6 +14,9 @@ interface QRCodeModalProps {
 }
 
 const QRCodeModal = ({ isOpen, onClose }: QRCodeModalProps) => {
+  // A working QR code that points to a website (you can replace with your actual app URL)
+  const qrCodeUrl = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://puter.com/app/code-assistant";
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
@@ -25,17 +28,11 @@ const QRCodeModal = ({ isOpen, onClose }: QRCodeModalProps) => {
         </DialogHeader>
         
         <div className="flex flex-col items-center justify-center p-6">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="200"
-            height="200"
-            viewBox="0 0 200 200"
-            className="mb-4"
-          >
-            <rect width="200" height="200" fill="white" />
-            <path d="M50,50 h30 v30 h-30 z M90,50 h10 v10 h-10 z M110,50 h10 v10 h-10 z M130,50 h20 v10 h-10 v10 h10 v10 h-20 z M50,90 h10 v10 h-10 z M70,90 h10 v10 h-10 z M90,90 h10 v10 h-10 z M130,90 h20 v10 h-20 z M50,110 h10 v10 h-10 z M70,110 h30 v10 h-30 z M110,110 h40 v10 h-40 z M50,130 h30 v20 h-30 z M90,130 h10 v10 h-10 z M110,130 h10 v10 h-10 z M130,130 h20 v20 h-20 z" 
-            fill="black" />
-          </svg>
+          <img 
+            src={qrCodeUrl} 
+            alt="QR Code to download the app" 
+            className="mb-4 w-[200px] h-[200px]"
+          />
           
           <div className="grid grid-cols-2 gap-4">
             <div className="text-center">
@@ -51,6 +48,16 @@ const QRCodeModal = ({ isOpen, onClose }: QRCodeModalProps) => {
               </svg>
               <p className="text-sm mt-1">Android</p>
             </div>
+          </div>
+
+          <div className="text-center mt-4 text-sm text-gray-500">
+            <p>To add this to your EPO account app:</p>
+            <ol className="list-decimal text-left mt-2 pl-4">
+              <li>Log in to your EPO account</li>
+              <li>Navigate to "App Settings"</li>
+              <li>Select "Add External App"</li>
+              <li>Enter the app URL or scan this QR code</li>
+            </ol>
           </div>
         </div>
       </DialogContent>
