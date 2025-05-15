@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import AppHeader from '@/components/AppHeader';
 import { toast } from "@/hooks/use-toast";
@@ -7,7 +8,10 @@ import ChatMessage from '@/components/ChatMessage';
 import ImageToTextDialog from '@/components/ImageToTextDialog';
 import VisionDialog from '@/components/VisionDialog';
 import ImagePlaceholder from '@/components/ImagePlaceholder';
-import { Button } from "@/components/ui/button"; // Import the Button component
+import SettingsDialog from '@/components/SettingsDialog';
+import ToolsDialog from '@/components/ToolsDialog';
+import ImagePreviewDialog from '@/components/ImagePreviewDialog';
+import { Button } from "@/components/ui/button";
 
 interface Message {
   id: string;
@@ -19,23 +23,85 @@ interface Message {
   imageUrl?: string;
 }
 
+interface AppSettings {
+  theme: string;
+  streamEnabled: boolean;
+  functionCallingEnabled: boolean;
+}
+
+interface Tool {
+  id: string;
+  name: string;
+  description: string;
+  enabled: boolean;
+}
+
 const Chat = () => {
+  // Authentication state
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<any>(null);
+  
+  // Chat state
   const [prompt, setPrompt] = useState('');
   const [selectedModel, setSelectedModel] = useState('gpt-4o-mini');
   const [conversation, setConversation] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isImageGenerating, setIsImageGenerating] = useState(false);
-  const [isListening, setIsListening] = useState(false);
-  const [recognitionInstance, setRecognitionInstance] = useState<any>(null);
-  const [isTxtImgMode, setIsTxtImgMode] = useState(false);
+  
+  // Dialog states
+  const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false);
+  const [isToolsDialogOpen, setIsToolsDialogOpen] = useState(false);
   const [isImgTxtDialogOpen, setIsImgTxtDialogOpen] = useState(false);
   const [isVisionDialogOpen, setIsVisionDialogOpen] = useState(false);
+  const [isImagePreviewOpen, setIsImagePreviewOpen] = useState(false);
+  const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
+  
+  // Image to text state
   const [extractedText, setExtractedText] = useState("");
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [selectRegion, setSelectRegion] = useState(false);
+  
+  // Voice recognition state
+  const [isListening, setIsListening] = useState(false);
+  const [recognitionInstance, setRecognitionInstance] = useState<any>(null);
+  
+  // Text-to-image mode
+  const [isTxtImgMode, setIsTxtImgMode] = useState(false);
+  
+  // Text-to-speech state
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [audioPlayer, setAudioPlayer] = useState<HTMLAudioElement | null>(null);
+  const [audioProgress, setAudioProgress] = useState(0);
+  
+  // App settings
+  const [settings, setSettings] = useState<AppSettings>({
+    theme: 'dark',
+    streamEnabled: false,
+    functionCallingEnabled: false
+  });
+  
+  // Available tools
+  const [tools, setTools] = useState<Tool[]>([
+    {
+      id: "weather",
+      name: "Weather",
+      description: "Get current weather for a location",
+      enabled: true
+    },
+    {
+      id: "calculator",
+      name: "Calculator",
+      description: "Perform calculations",
+      enabled: false
+    },
+    {
+      id: "search",
+      name: "Web Search",
+      description: "Search the web for information",
+      enabled: false
+    }
+  ]);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -76,7 +142,7 @@ const Chat = () => {
     }
   }, []);
 
-  // Check if user is already signed in - also check local storage
+  // Check if user is already signed in
   useEffect(() => {
     // First check localStorage
     const savedUser = localStorage.getItem('puterUser');
@@ -102,7 +168,62 @@ const Chat = () => {
         });
       }
     }
+    
+    // Load settings from localStorage
+    const savedSettings = localStorage.getItem('puterChatSettings');
+    if (savedSettings) {
+      try {
+        setSettings(JSON.parse(savedSettings));
+      } catch (e) {
+        console.error("Failed to parse saved settings:", e);
+      }
+    }
+    
+    // Load tools from localStorage
+    const savedTools = localStorage.getItem('puterChatTools');
+    if (savedTools) {
+      try {
+        setTools(JSON.parse(savedTools));
+      } catch (e) {
+        console.error("Failed to parse saved tools:", e);
+      }
+    }
   }, []);
+
+  // Save settings to localStorage when they change
+  useEffect(() => {
+    localStorage.setItem('puterChatSettings', JSON.stringify(settings));
+  }, [settings]);
+  
+  // Save tools to localStorage when they change
+  useEffect(() => {
+    localStorage.setItem('puterChatTools', JSON.stringify(tools));
+  }, [tools]);
+  
+  // Handle audio player progress updates
+  useEffect(() => {
+    if (audioPlayer) {
+      const updateProgress = () => {
+        if (audioPlayer.duration) {
+          setAudioProgress((audioPlayer.currentTime / audioPlayer.duration) * 100);
+        }
+      };
+      
+      audioPlayer.addEventListener('timeupdate', updateProgress);
+      audioPlayer.addEventListener('ended', () => {
+        setIsSpeaking(false);
+        setAudioProgress(0);
+      });
+      
+      return () => {
+        audioPlayer.removeEventListener('timeupdate', updateProgress);
+        audioPlayer.removeEventListener('ended', () => {
+          setIsSpeaking(false);
+          setAudioProgress(0);
+        });
+      };
+    }
+  }, [audioPlayer]);
 
   const toggleListening = () => {
     if (isListening) {
@@ -232,19 +353,83 @@ const Chat = () => {
       
       try {
         if (typeof window !== 'undefined' && window.puter) {
-          const response = await window.puter.ai.chat(promptText, {
+          // Prepare options for the chat request
+          const chatOptions: any = {
             model: selectedModel
-          });
-
-          // Add AI response to conversation
+          };
+          
+          // Add streaming if enabled
+          if (settings.streamEnabled) {
+            chatOptions.stream = true;
+          }
+          
+          // Add tools if function calling is enabled
+          if (settings.functionCallingEnabled) {
+            chatOptions.tools = tools.filter(t => t.enabled).map(t => {
+              // This is a simplified version; in a real app, you would define proper tool schemas
+              return {
+                type: "function",
+                function: {
+                  name: t.id,
+                  description: t.description,
+                  parameters: {
+                    type: "object",
+                    properties: {
+                      query: {
+                        type: "string",
+                        description: `Input for the ${t.name} tool`
+                      }
+                    },
+                    required: ["query"]
+                  }
+                }
+              };
+            });
+          }
+          
+          // Create assistant message placeholder
+          const assistantId = Math.random().toString(36).substring(2, 11);
           const assistantMessage: Message = {
-            id: Math.random().toString(36).substring(2, 11),
+            id: assistantId,
             role: 'assistant',
-            content: response.message.content,
+            content: '',
             timestamp: new Date(),
             model: selectedModel
           };
+          
           setConversation(prev => [...prev, assistantMessage]);
+          
+          if (settings.streamEnabled) {
+            // Handle streaming
+            const streamResponse = await window.puter.ai.chat(promptText, chatOptions);
+            
+            // Update the message content as chunks arrive
+            let fullContent = '';
+            
+            for await (const chunk of streamResponse) {
+              if (chunk?.text) {
+                fullContent += chunk.text;
+                // Update the message with the current content
+                setConversation(prev => prev.map(msg => 
+                  msg.id === assistantId ? {
+                    ...msg,
+                    content: fullContent
+                  } : msg
+                ));
+              }
+            }
+          } else {
+            // Non-streaming response
+            const response = await window.puter.ai.chat(promptText, chatOptions);
+            
+            // Update the assistant message with the response
+            setConversation(prev => prev.map(msg => 
+              msg.id === assistantId ? {
+                ...msg,
+                content: response.message.content
+              } : msg
+            ));
+          }
         } else {
           // Mock response for development
           setTimeout(() => {
@@ -392,6 +577,100 @@ const Chat = () => {
     
     setConversation(prev => [...prev, imageMessage, descriptionMessage]);
   };
+  
+  const handleSettingsChange = (newSettings: AppSettings) => {
+    setSettings(newSettings);
+    
+    // Apply theme
+    document.documentElement.setAttribute('data-theme', newSettings.theme);
+    
+    // If streaming was toggled, update the model to a compatible one
+    if (newSettings.streamEnabled !== settings.streamEnabled) {
+      // Check if current model is compatible with streaming
+      const STREAM_COMPATIBLE_MODELS = [
+        "gpt-4o-mini", "gpt-4o", "gpt-4.5-preview",
+        "claude-3-7-sonnet", "claude-3-5-sonnet",
+        "mistral-large-latest", "pixtral-large-latest", "codestral-latest",
+        "grok-beta"
+      ];
+      
+      if (newSettings.streamEnabled && !STREAM_COMPATIBLE_MODELS.includes(selectedModel)) {
+        // Switch to a compatible model
+        setSelectedModel("gpt-4o-mini");
+        toast({
+          title: "Model changed",
+          description: "Switched to a streaming-compatible model"
+        });
+      }
+    }
+    
+    // If function calling was toggled, update the model to a compatible one
+    if (newSettings.functionCallingEnabled !== settings.functionCallingEnabled) {
+      // Check if current model is compatible with function calling
+      const FUNCTION_CALLING_MODELS = [
+        "gpt-4o-mini", "gpt-4o", "gpt-4.5-preview",
+        "claude-3-7-sonnet", "claude-3-5-sonnet"
+      ];
+      
+      if (newSettings.functionCallingEnabled && !FUNCTION_CALLING_MODELS.includes(selectedModel)) {
+        // Switch to a compatible model
+        setSelectedModel("gpt-4o-mini");
+        toast({
+          title: "Model changed",
+          description: "Switched to a function calling-compatible model"
+        });
+      }
+    }
+  };
+  
+  const handlePlayMessage = (messageId: string) => {
+    const message = conversation.find(msg => msg.id === messageId);
+    if (message && message.content) {
+      if (isSpeaking && audioPlayer) {
+        audioPlayer.pause();
+        audioPlayer.currentTime = 0;
+        setIsSpeaking(false);
+        setAudioProgress(0);
+      } else {
+        if (typeof window !== 'undefined' && window.puter) {
+          window.puter.ai.txt2speech(message.content).then(audio => {
+            setAudioPlayer(audio);
+            audio.play();
+            setIsSpeaking(true);
+          }).catch(error => {
+            console.error("Failed to convert text to speech:", error);
+            toast({
+              title: "Error",
+              description: "Failed to convert text to speech.",
+              variant: "destructive"
+            });
+          });
+        } else {
+          toast({
+            title: "Not Available",
+            description: "Text to speech is not available in this environment.",
+            variant: "destructive"
+          });
+        }
+      }
+    }
+  };
+  
+  const toggleSpeaking = () => {
+    if (audioPlayer) {
+      if (isSpeaking) {
+        audioPlayer.pause();
+      } else {
+        audioPlayer.play();
+      }
+      setIsSpeaking(!isSpeaking);
+    }
+  };
+  
+  const handleImageClick = (imageUrl: string) => {
+    setPreviewImageUrl(imageUrl);
+    setIsImagePreviewOpen(true);
+  };
 
   if (!isAuthenticated) {
     return (
@@ -429,8 +708,11 @@ const Chat = () => {
           isTxtImgMode={isTxtImgMode}
           toggleTxtImgMode={toggleTxtImgMode}
           openImgTxtDialog={() => setIsImgTxtDialogOpen(true)}
+          openSettingsDialog={() => setIsSettingsDialogOpen(true)}
+          openToolsDialog={() => setIsToolsDialogOpen(true)}
           user={user}
           handleSignOut={handleSignOut}
+          settings={settings}
         />
         
         <div className="bg-gray-800 rounded-lg p-4 mb-4 h-[calc(100vh-250px)] overflow-y-auto">
@@ -466,8 +748,10 @@ const Chat = () => {
                   sender={msg.role === 'user' ? 'You' : 'AI'}
                   onDelete={() => handleDeleteMessage(msg.id)}
                   onResend={() => handleResendMessage(msg.id)}
+                  onPlay={() => handlePlayMessage(msg.id)}
                   type={msg.type}
                   imageUrl={msg.imageUrl}
+                  onImageClick={handleImageClick}
                 />
               );
             }
@@ -498,6 +782,9 @@ const Chat = () => {
           isTxtImgMode={isTxtImgMode}
           selectedModel={selectedModel}
           openVisionDialog={() => setIsVisionDialogOpen(true)}
+          isSpeaking={isSpeaking}
+          toggleSpeaking={toggleSpeaking}
+          audioProgress={audioProgress}
         />
       </div>
       
@@ -522,6 +809,29 @@ const Chat = () => {
         isOpen={isVisionDialogOpen}
         onOpenChange={setIsVisionDialogOpen}
         onImageCaptured={handleVisionCaptured}
+      />
+      
+      {/* Settings Dialog */}
+      <SettingsDialog
+        isOpen={isSettingsDialogOpen}
+        onOpenChange={setIsSettingsDialogOpen}
+        settings={settings}
+        onSettingsChange={handleSettingsChange}
+      />
+      
+      {/* Tools Dialog */}
+      <ToolsDialog
+        isOpen={isToolsDialogOpen}
+        onOpenChange={setIsToolsDialogOpen}
+        tools={tools}
+        onToolsChange={setTools}
+      />
+      
+      {/* Image Preview Dialog */}
+      <ImagePreviewDialog
+        isOpen={isImagePreviewOpen}
+        onOpenChange={setIsImagePreviewOpen}
+        imageUrl={previewImageUrl}
       />
     </div>
   );
