@@ -420,7 +420,7 @@ const Chat = () => {
             
             {user && <div className="flex items-center gap-2 mx-auto">
                 <span className="font-normal text-base border-gray-600 hover:bg-gray-700">Signed in as {user.username}</span>
-                <Button variant="outline" size="sm" onClick={handleSignOut} className="border-gray-600 text-gray-200 hover:bg-gray-700">
+                <Button variant="outline" size="sm" onClick={handleSignOut} className="border-gray-600 text-gray-200 hover:bg-gray-700 \t\nobject-position: right">
                   Sign Out
                 </Button>
               </div>}
