@@ -138,7 +138,7 @@ const Index = () => {
                 </div>
                 <div className="p-4 font-mono text-sm text-gray-300 overflow-hidden" style={{ maxHeight: "300px" }}>
                   <pre className="language-javascript">
-                    {`// Generate a React component for a todo list
+{`// Generate a React component for a todo list
 import React, { useState } from 'react';
 
 const TodoList = () => {
@@ -207,13 +207,13 @@ export default TodoList;`}
                       // Debug this function
                     </div>
                     <div className="bg-gray-800 p-3 rounded-lg text-sm font-mono text-gray-300">
-                      function calculateTotal(items) {<br />
+                      function calculateTotal(items) {'{'}<br />
                       &nbsp;&nbsp;let sum = 0;<br />
-                      &nbsp;&nbsp;for (let i = 0; i &lt; items.length; i++) {<br />
+                      &nbsp;&nbsp;for (let i = 0; i &lt; items.length; i++) {'{'}<br />
                       &nbsp;&nbsp;&nbsp;&nbsp;sum += items[i].price;<br />
-                      &nbsp;&nbsp;}<br />
+                      &nbsp;&nbsp;{'}'}<br />
                       &nbsp;&nbsp;return sum;<br />
-                      }
+                      {'}'}
                     </div>
                     <div className="flex justify-between mt-4">
                       <button className="bg-blue-600 text-white px-3 py-1 rounded-md text-sm">Generate</button>
