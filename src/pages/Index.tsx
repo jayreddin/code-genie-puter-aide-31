@@ -23,7 +23,7 @@ const Index = () => {
         <section className="text-center mb-24">
           <h1 className="text-5xl font-bold mb-6">AI-Powered Code Assistant</h1>
           <p className="text-xl text-gray-300 max-w-3xl mx-auto mb-10">
-            Leverage Puter.com's powerful AI models to generate, debug, and fix your code.
+            Leverage Puter.com&apos;s powerful AI models to generate, debug, and fix your code.
             Available as a Chrome extension and mobile app.
           </p>
           <div className="flex justify-center gap-6">
@@ -42,9 +42,11 @@ const Index = () => {
           </div>
         </section>
 
+        {/* Features section */}
         <section id="features" className="mb-24">
           <h2 className="text-3xl font-bold text-center mb-12">Features</h2>
           <div className="grid md:grid-cols-3 gap-8">
+            {/* Code Generation */}
             <div className="bg-gray-800 p-6 rounded-lg">
               <div className="text-blue-400 text-3xl mb-4">
                 <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -57,6 +59,7 @@ const Index = () => {
                 Generate code snippets, functions, and complete components from natural language prompts or comments.
               </p>
             </div>
+            {/* Code Debugging */}
             <div className="bg-gray-800 p-6 rounded-lg">
               <div className="text-purple-400 text-3xl mb-4">
                 <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -69,6 +72,7 @@ const Index = () => {
                 Identify issues in your code with detailed diagnostics and suggestions for improvements.
               </p>
             </div>
+            {/* Code Fixing */}
             <div className="bg-gray-800 p-6 rounded-lg">
               <div className="text-green-400 text-3xl mb-4">
                 <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -83,6 +87,7 @@ const Index = () => {
           </div>
         </section>
 
+        {/* Chrome Extension section */}
         <section id="chrome-extension" className="mb-24">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
@@ -133,7 +138,7 @@ const Index = () => {
                 </div>
                 <div className="p-4 font-mono text-sm text-gray-300 overflow-hidden" style={{ maxHeight: "300px" }}>
                   <pre className="language-javascript">
-{`// Generate a React component for a todo list
+                    {`// Generate a React component for a todo list
 import React, { useState } from 'react';
 
 const TodoList = () => {
@@ -190,6 +195,7 @@ export default TodoList;`}
           </div>
         </section>
 
+        {/* Mobile App section */}
         <section id="mobile-app" className="mb-24">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="order-2 md:order-1">
@@ -221,7 +227,7 @@ export default TodoList;`}
             <div className="order-1 md:order-2">
               <h2 className="text-3xl font-bold mb-6">Mobile App</h2>
               <p className="text-gray-300 mb-6">
-                Take the power of Puter's code AI with you. Our mobile app lets you edit, generate, and debug code on the go.
+                Take the power of Puter&apos;s code AI with you. Our mobile app lets you edit, generate, and debug code on the go.
               </p>
               <ul className="space-y-3 mb-8">
                 <li className="flex items-start">
@@ -250,7 +256,7 @@ export default TodoList;`}
                   className="px-6 py-3 bg-black text-white rounded-md font-medium inline-flex items-center border border-gray-700"
                 >
                   <svg className="mr-2" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"></path>
+                    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
                   </svg>
                   App Store
                 </a>
@@ -259,7 +265,7 @@ export default TodoList;`}
                   className="px-6 py-3 bg-black text-white rounded-md font-medium inline-flex items-center border border-gray-700"
                 >
                   <svg className="mr-2" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M3.18 23.94c-.44 0-.86-.18-1.18-.5-.32-.32-.5-.74-.5-1.18V1.74c0-.44.18-.86.5-1.18.32-.32.74-.5 1.18-.5h17.64c.44 0 .86.18 1.18.5.32.32.5.74.5 1.18v20.52c0 .44-.18.86-.5 1.18-.32.32-.74.5-1.18.5H3.18zM12 7.74l-6.2-3.56v-.01l6.2-3.56 6.27 3.56-6.27 3.57zm4.76 6.05-4.76-2.73-4.76 2.73v-5.5L12 10.54l4.76 2.75v.5z"></path>
+                    <path d="M3.18 23.94c-.44 0-.86-.18-1.18-.5-.32-.32-.5-.74-.5-1.18V1.74c0-.44.18-.86.5-1.18.32-.32.74-.5 1.18-.5h17.64c.44 0 .86.18 1.18.5.32.32.5.74.5 1.18v20.52c0 .44-.18.86-.5 1.18-.32.32-.74.5-1.18.5H3.18zM12 7.74l-6.2-3.56v-.01l6.2-3.56 6.27 3.56-6.27 3.57zm4.76 6.05-4.76-2.73-4.76 2.73v-5.5L12 10.54l4.76 2.75v.5z" />
                   </svg>
                   Google Play
                 </a>
