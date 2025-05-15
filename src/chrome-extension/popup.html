@@ -1,0 +1,52 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Puter Code Assistant</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="popup.css">
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>Puter Code Assistant</h1>
+      </header>
+      
+      <div class="settings-section">
+        <div class="api-key-section">
+          <label for="api-key">Puter API Key:</label>
+          <div class="api-input-container">
+            <input type="password" id="api-key" placeholder="Enter your Puter API key">
+            <button id="save-api-key">Save</button>
+          </div>
+          <div class="api-status" id="api-status">Not configured</div>
+        </div>
+
+        <div class="model-selection">
+          <label for="model-select">Model:</label>
+          <select id="model-select" disabled>
+            <option value="">Select a model...</option>
+          </select>
+          <button id="refresh-models">Refresh Models</button>
+        </div>
+      </div>
+
+      <div class="action-section">
+        <div class="action-buttons">
+          <button id="generate-code" class="action-button" disabled>Generate Code</button>
+          <button id="debug-code" class="action-button" disabled>Debug Code</button>
+          <button id="fix-code" class="action-button" disabled>Fix Code</button>
+        </div>
+      </div>
+
+      <div class="status-section">
+        <div id="status-message"></div>
+      </div>
+      
+      <footer>
+        <p>Powered by Puter.com</p>
+      </footer>
+    </div>
+    <script src="popup.js" type="module"></script>
+  </body>
+</html>

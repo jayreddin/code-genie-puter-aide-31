@@ -1,0 +1,166 @@
+
+:root {
+  --dark-bg: #1e1e2e;
+  --darker-bg: #181825;
+  --light-text: #cdd6f4;
+  --primary: #89b4fa;
+  --secondary: #f5c2e7;
+  --accent: #94e2d5;
+  --border-color: #313244;
+  --input-bg: #11111b;
+  --success: #a6e3a1;
+  --error: #f38ba8;
+  --warning: #fab387;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Fira Code', monospace, system-ui;
+  background-color: var(--dark-bg);
+  color: var(--light-text);
+  width: 360px;
+  overflow-x: hidden;
+}
+
+.container {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+header {
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+header h1 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.settings-section, .action-section, .status-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+label {
+  font-size: 14px;
+  color: var(--secondary);
+  display: block;
+  margin-bottom: 4px;
+}
+
+input, select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: var(--input-bg);
+  color: var(--light-text);
+  font-family: inherit;
+}
+
+input:focus, select:focus {
+  outline: 2px solid var(--primary);
+}
+
+.api-input-container {
+  display: flex;
+  gap: 8px;
+}
+
+.api-input-container input {
+  flex-grow: 1;
+}
+
+button {
+  background-color: var(--primary);
+  color: var(--dark-bg);
+  border: none;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s, opacity 0.2s;
+}
+
+button:hover {
+  background-color: var(--accent);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+}
+
+.action-button {
+  flex: 1;
+  text-align: center;
+}
+
+.api-status {
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+#status-message {
+  min-height: 40px;
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+footer {
+  margin-top: 8px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--border-color);
+}
+
+/* Status message types */
+.success {
+  background-color: rgba(166, 227, 161, 0.2);
+  color: var(--success);
+}
+
+.error {
+  background-color: rgba(243, 139, 168, 0.2);
+  color: var(--error);
+}
+
+.warning {
+  background-color: rgba(250, 179, 135, 0.2);
+  color: var(--warning);
+}
+
+.info {
+  background-color: rgba(137, 180, 250, 0.2);
+  color: var(--primary);
+}
+
+/* Model selection */
+.model-selection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+#refresh-models {
+  align-self: flex-end;
+  font-size: 12px;
+  padding: 4px 8px;
+}

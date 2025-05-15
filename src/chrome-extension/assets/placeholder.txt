@@ -1,0 +1,2 @@
+
+This is a placeholder file. The actual icon images (icon16.png, icon48.png, icon128.png, etc.) would need to be created separately.
