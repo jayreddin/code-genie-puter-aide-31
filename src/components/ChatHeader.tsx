@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
@@ -79,8 +80,8 @@ const ChatHeader = ({
         
       </div>
       
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Button onClick={toggleTxtImgMode} variant={isTxtImgMode ? "default" : "outline"} className={`${isTxtImgMode ? 'bg-green-600 hover:bg-green-700 border-2 border-green-500 animate-pulse' : ''}`} size="sm">
             <Image className="h-4 w-4 mr-2" />
             Text to Image
@@ -94,7 +95,7 @@ const ChatHeader = ({
                 {settings.functionCallingEnabled && <Badge variant="outline" className="ml-2 text-xs">Function</Badge>}
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="center" className="w-[240px] max-h-[400px] overflow-y-auto">
+            <DropdownMenuContent align="center" className="w-[240px] max-h-[400px] overflow-y-auto dropdown-content">
               {Object.keys(filteredModels).map(provider => <React.Fragment key={provider}>
                   <DropdownMenuLabel className="text-center font-semibold text-blue-500">{provider}</DropdownMenuLabel>
                   <DropdownMenuSeparator />

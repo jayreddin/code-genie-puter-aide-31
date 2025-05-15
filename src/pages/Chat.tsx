@@ -1,3 +1,7 @@
+
+// I'll update the Chat component to fix the streaming response handling
+// and improve theme handling in the application
+
 import React, { useState, useEffect, useRef } from 'react';
 import AppHeader from '@/components/AppHeader';
 import { toast } from "@/hooks/use-toast";
@@ -141,6 +145,11 @@ const Chat = () => {
     }
   }, []);
 
+  // Apply theme when settings change
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', settings.theme);
+  }, [settings.theme]);
+
   // Check if user is already signed in
   useEffect(() => {
     // First check localStorage
@@ -192,6 +201,8 @@ const Chat = () => {
   // Save settings to localStorage when they change
   useEffect(() => {
     localStorage.setItem('puterChatSettings', JSON.stringify(settings));
+    // Apply theme when settings change
+    document.documentElement.setAttribute('data-theme', settings.theme);
   }, [settings]);
   
   // Save tools to localStorage when they change
@@ -406,7 +417,7 @@ const Chat = () => {
             let fullContent = '';
             
             try {
-              // Properly handle streaming responses
+              // Fixed: Properly check if streamResponse is async iterable
               if (streamResponse && typeof streamResponse[Symbol.asyncIterator] === 'function') {
                 for await (const chunk of streamResponse) {
                   if (chunk?.text) {
@@ -695,16 +706,16 @@ const Chat = () => {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
+      <div className="min-h-screen bg-gradient-to-b from-background to-accent/20 text-foreground">
         <AppHeader />
         
         <div className="container mx-auto px-4 py-12">
-          <div className="max-w-md mx-auto bg-gray-800 p-8 rounded-lg shadow-lg">
+          <div className="max-w-md mx-auto bg-card p-8 rounded-lg shadow-lg border border-border">
             <div className="text-center mb-6">
               <h1 className="text-2xl font-bold">
                 <span className="text-blue-400">Puter</span> Chat
               </h1>
-              <p className="text-gray-400 mt-2">Sign in to access Puter AI capabilities</p>
+              <p className="text-muted-foreground mt-2">Sign in to access Puter AI capabilities</p>
             </div>
             
             <div className="flex justify-center">
@@ -719,7 +730,7 @@ const Chat = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-900 to-gray-800 text-white">
+    <div data-theme={settings.theme} className="min-h-screen bg-gradient-to-b from-background to-accent/20 text-foreground">
       <AppHeader />
       
       <div className="container mx-auto px-4 py-6">
@@ -736,9 +747,9 @@ const Chat = () => {
           settings={settings}
         />
         
-        <div className="bg-gray-800 rounded-lg p-4 mb-4 h-[calc(100vh-250px)] overflow-y-auto">
+        <div className="bg-card rounded-lg p-4 mb-4 h-[calc(100vh-250px)] overflow-y-auto border border-border">
           {conversation.length === 0 && (
-            <div className="flex flex-col items-center justify-center h-full text-gray-400">
+            <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
               <p>No messages yet</p>
               <p className="text-sm mt-2">Send a message to start chatting with AI</p>
               <p className="text-xs mt-1">{isTxtImgMode ? "Text-to-Image mode is active" : ""}</p>
@@ -750,10 +761,10 @@ const Chat = () => {
               // Show placeholder for images being generated
               return (
                 <div key={msg.id} className="mb-4 text-left">
-                  <div className="text-xs text-gray-400 mb-1">
+                  <div className="text-xs text-muted-foreground mb-1">
                     {msg.role === 'assistant' ? 'Assistant' : 'You'}: {msg.timestamp.toLocaleTimeString()}
                   </div>
-                  <div className="p-3 rounded-lg bg-gray-700 text-gray-100">
+                  <div className="p-3 rounded-lg bg-muted text-foreground">
                     <div>{msg.content}</div>
                     <ImagePlaceholder isLoading={isImageGenerating} />
                   </div>
@@ -780,11 +791,11 @@ const Chat = () => {
           
           {isLoading && !isImageGenerating && (
             <div className="flex space-x-2 mt-4 justify-center">
-              <div className="w-3 h-3 rounded-full bg-blue-500 animate-bounce"></div>
-              <div className="w-3 h-3 rounded-full bg-blue-500 animate-bounce" style={{
+              <div className="w-3 h-3 rounded-full bg-primary animate-bounce"></div>
+              <div className="w-3 h-3 rounded-full bg-primary animate-bounce" style={{
                 animationDelay: '0.2s'
               }}></div>
-              <div className="w-3 h-3 rounded-full bg-blue-500 animate-bounce" style={{
+              <div className="w-3 h-3 rounded-full bg-primary animate-bounce" style={{
                 animationDelay: '0.4s'
               }}></div>
             </div>

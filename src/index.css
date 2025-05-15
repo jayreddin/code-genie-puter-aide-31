@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -49,9 +50,16 @@
     --sidebar-border: 220 13% 91%;
 
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Chat App Specific Colors */
+    --chat-bubble-user: 210 100% 97%;
+    --chat-bubble-user-text: 222.2 84% 4.9%;
+    --chat-bubble-assistant: 217.2 91.2% 59.8% / 10%;
+    --chat-bubble-assistant-text: 222.2 84% 4.9%;
+    --chat-header: 214.3 31.8% 91.4%;
   }
 
-  .dark {
+  [data-theme="dark"] {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
 
@@ -87,6 +95,121 @@
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Chat App Specific Colors */
+    --chat-bubble-user: 217.2 32.6% 17.5%;
+    --chat-bubble-user-text: 210 40% 98%;
+    --chat-bubble-assistant: 217.2 91.2% 59.8% / 15%;
+    --chat-bubble-assistant-text: 210 40% 98%;
+    --chat-header: 222.2 47.4% 11.2%;
+  }
+
+  [data-theme="sunset"] {
+    --background: 20 100% 98%;
+    --foreground: 20 50% 10%;
+
+    --card: 20 50% 98%;
+    --card-foreground: 20 50% 10%;
+
+    --popover: 20 50% 98%;
+    --popover-foreground: 20 50% 10%;
+
+    --primary: 20 80% 50%;
+    --primary-foreground: 20 10% 98%;
+
+    --secondary: 35 100% 96%;
+    --secondary-foreground: 20 50% 10%;
+
+    --muted: 35 50% 95%;
+    --muted-foreground: 20 50% 40%;
+
+    --accent: 35 100% 96%;
+    --accent-foreground: 20 50% 10%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 20 50% 90%;
+    --input: 20 50% 90%;
+    --ring: 20 50% 50%;
+
+    --chat-bubble-user: 35 100% 95%;
+    --chat-bubble-user-text: 20 50% 10%;
+    --chat-bubble-assistant: 20 80% 50% / 15%;
+    --chat-bubble-assistant-text: 20 50% 10%;
+    --chat-header: 20 50% 90%;
+  }
+
+  [data-theme="grey"] {
+    --background: 0 0% 96%;
+    --foreground: 0 0% 12%;
+
+    --card: 0 0% 96%;
+    --card-foreground: 0 0% 12%;
+
+    --popover: 0 0% 96%;
+    --popover-foreground: 0 0% 12%;
+
+    --primary: 0 0% 40%;
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 0 0% 92%;
+    --secondary-foreground: 0 0% 12%;
+
+    --muted: 0 0% 90%;
+    --muted-foreground: 0 0% 45%;
+
+    --accent: 0 0% 92%;
+    --accent-foreground: 0 0% 12%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 86%;
+    --input: 0 0% 86%;
+    --ring: 0 0% 40%;
+
+    --chat-bubble-user: 0 0% 88%;
+    --chat-bubble-user-text: 0 0% 12%;
+    --chat-bubble-assistant: 0 0% 40% / 10%;
+    --chat-bubble-assistant-text: 0 0% 12%;
+    --chat-header: 0 0% 86%;
+  }
+
+  [data-theme="multicolored"] {
+    --background: 210 50% 98%;
+    --foreground: 210 50% 10%;
+
+    --card: 210 50% 98%;
+    --card-foreground: 210 50% 10%;
+
+    --popover: 210 50% 98%;
+    --popover-foreground: 210 50% 10%;
+
+    --primary: 250 60% 50%;
+    --primary-foreground: 250 10% 98%;
+
+    --secondary: 170 70% 95%;
+    --secondary-foreground: 170 50% 10%;
+
+    --muted: 130 30% 95%;
+    --muted-foreground: 130 50% 40%;
+
+    --accent: 330 80% 96%;
+    --accent-foreground: 330 50% 10%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 210 50% 90%;
+    --input: 210 50% 90%;
+    --ring: 250 60% 50%;
+
+    --chat-bubble-user: 250 60% 95%;
+    --chat-bubble-user-text: 250 50% 10%;
+    --chat-bubble-assistant: 170 70% 50% / 15%;
+    --chat-bubble-assistant-text: 170 50% 10%;
+    --chat-header: 210 50% 90%;
   }
 }
 
@@ -98,4 +221,56 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Audio progress bar styling */
+.audio-progress {
+  height: 4px;
+  background-color: hsl(var(--muted));
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.audio-progress-bar {
+  height: 100%;
+  background-color: hsl(var(--primary));
+  border-radius: 2px;
+  transition: width 0.3s linear;
+}
+
+/* Message bubble animations */
+@keyframes pulse {
+  0% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.6;
+  }
+}
+
+.animate-pulse-custom {
+  animation: pulse 1.5s infinite;
+}
+
+/* Dropdown styling improvements */
+.dropdown-content {
+  max-height: 300px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.dropdown-content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.dropdown-content::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+}
+
+.dropdown-content::-webkit-scrollbar-thumb {
+  background: hsl(var(--primary) / 0.5);
+  border-radius: 2px;
 }

@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import React, { useState, useEffect } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -35,6 +35,11 @@ const SettingsDialog = ({
     functionCallingEnabled: settings.functionCallingEnabled,
   });
 
+  // Update local settings when props change
+  useEffect(() => {
+    setLocalSettings(settings);
+  }, [settings]);
+
   const handleSave = () => {
     onSettingsChange(localSettings);
     toast({
@@ -44,6 +49,14 @@ const SettingsDialog = ({
     onOpenChange(false);
   };
 
+  // Apply theme preview to dialog content
+  useEffect(() => {
+    const dialogElem = document.querySelector('[role="dialog"]');
+    if (dialogElem) {
+      dialogElem.setAttribute('data-theme', localSettings.theme);
+    }
+  }, [localSettings.theme]);
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
@@ -52,6 +65,9 @@ const SettingsDialog = ({
             <Settings className="w-5 h-5" />
             Settings
           </DialogTitle>
+          <DialogDescription>
+            Customize the application appearance and behavior
+          </DialogDescription>
         </DialogHeader>
         
         <div className="space-y-6 py-4">

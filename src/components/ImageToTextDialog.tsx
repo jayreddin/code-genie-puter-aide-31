@@ -1,9 +1,8 @@
 
-import React, { useState, useRef } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import React, { useState } from 'react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/hooks/use-toast";
-import { Copy, Upload, Check, Plus, Crop } from "lucide-react";
+import { LoaderCircle, Upload, X, Square } from "lucide-react";
 
 interface ImageToTextDialogProps {
   isOpen: boolean;
@@ -14,7 +13,7 @@ interface ImageToTextDialogProps {
   setPreviewUrl: (url: string | null) => void;
   extractedText: string;
   isLoading: boolean;
-  handleExtractText: () => Promise<void>;
+  handleExtractText: () => void;
   handleConvertToBase64: () => void;
   selectRegion: boolean;
   setSelectRegion: (select: boolean) => void;
@@ -34,212 +33,120 @@ const ImageToTextDialog = ({
   selectRegion,
   setSelectRegion
 }: ImageToTextDialogProps) => {
-  const [copied, setCopied] = useState(false);
-  const [showTextExport, setShowTextExport] = useState(false);
-  const [exportFormat, setExportFormat] = useState<'plain' | 'markdown'>('plain');
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const imageRef = useRef<HTMLImageElement>(null);
-  const [isImageExpanded, setIsImageExpanded] = useState(false);
 
-  const copyText = (format: 'plain' | 'markdown') => {
-    if (!extractedText) return;
-    
-    const textToCopy = format === 'markdown' 
-      ? '```\n' + extractedText + '\n```' 
-      : extractedText;
-    
-    navigator.clipboard.writeText(textToCopy);
-    setCopied(true);
-    
-    toast({
-      title: "Copied",
-      description: `Text copied as ${format === 'markdown' ? 'Markdown' : 'plain text'}`
-    });
-    
-    setTimeout(() => setCopied(false), 2000);
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setSelectedImage(file);
+      
+      // Create a preview URL for the image
+      const objectUrl = URL.createObjectURL(file);
+      setPreviewUrl(objectUrl);
+    }
   };
-
-  const handleShowTextExport = () => {
-    setShowTextExport(true);
+  
+  const handleRemoveImage = () => {
+    setSelectedImage(null);
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+      setPreviewUrl(null);
+    }
   };
-
-  const handleInsertIntoChat = () => {
-    // This function would be implemented to insert the text into the chat
-    toast({
-      title: "Inserted",
-      description: "Text has been inserted into the chat"
-    });
-    onOpenChange(false);
-  };
-
+  
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] overflow-hidden">
+      <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Image to Text</DialogTitle>
+          <DialogDescription>
+            Upload an image to extract text from it
+          </DialogDescription>
         </DialogHeader>
         
         <div className="space-y-4">
-          {!showTextExport ? (
-            <>
-              <div className="flex flex-col items-center justify-center">
-                {previewUrl ? (
-                  <div className="w-full relative">
-                    <div 
-                      className={`relative cursor-pointer ${isImageExpanded ? 'max-h-[500px] overflow-y-auto' : 'max-h-[200px] overflow-hidden'}`}
-                      onClick={() => setIsImageExpanded(!isImageExpanded)}
-                    >
-                      <img 
-                        ref={imageRef}
-                        src={previewUrl} 
-                        alt="Preview" 
-                        className="max-w-full mx-auto object-contain" 
-                      />
-                      {!isImageExpanded && (
-                        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background/80 flex items-end justify-center pb-2">
-                          <Button variant="ghost" size="sm">
-                            Click to expand
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex justify-center mt-4 gap-2">
-                      <Button
-                        onClick={() => {
-                          setSelectedImage(null);
-                          setPreviewUrl(null);
-                        }}
-                        variant="outline"
-                        size="sm"
-                      >
-                        Remove
-                      </Button>
-                      <Button
-                        onClick={() => fileInputRef.current?.click()}
-                        variant="outline"
-                        size="sm"
-                      >
-                        Change Image
-                      </Button>
-                      <Button
-                        onClick={() => setSelectRegion(!selectRegion)}
-                        variant={selectRegion ? "default" : "outline"}
-                        size="sm"
-                      >
-                        {selectRegion ? <Crop className="h-4 w-4 mr-1" /> : <Plus className="h-4 w-4 mr-1" />}
-                        Select Region
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-center border-2 border-dashed border-gray-300 rounded-lg p-6 w-full">
-                    <Button onClick={() => fileInputRef.current?.click()}>
-                      <Upload className="h-4 w-4 mr-2" />
-                      Upload Image
-                    </Button>
-                    <p className="text-sm text-gray-500 mt-2">
-                      Select an image to extract text or convert to Base64
-                    </p>
-                  </div>
-                )}
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  ref={fileInputRef}
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      setSelectedImage(file);
-                      const reader = new FileReader();
-                      reader.onload = () => {
-                        setPreviewUrl(reader.result as string);
-                      };
-                      reader.readAsDataURL(file);
-                    }
-                  }}
-                />
-              </div>
-              
-              <div className="flex justify-center gap-3 mt-4">
-                <Button 
-                  onClick={handleConvertToBase64} 
-                  variant="outline"
-                  disabled={!selectedImage || isLoading}
-                  className="flex-1"
-                >
-                  Convert to Base64
-                </Button>
-                <Button 
-                  onClick={() => {
-                    handleExtractText().then(() => {
-                      if (extractedText) {
-                        handleShowTextExport();
-                      }
-                    });
-                  }}
-                  disabled={!selectedImage || isLoading}
-                  className="flex-1"
-                >
-                  {isLoading ? 'Processing...' : 'Extract Text'}
-                </Button>
-              </div>
-            </>
+          {!selectedImage ? (
+            <div className="flex items-center justify-center w-full">
+              <label htmlFor="image-upload" className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500">
+                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                  <Upload className="w-10 h-10 mb-3 text-gray-400" />
+                  <p className="mb-2 text-sm text-gray-500 dark:text-gray-400"><span className="font-semibold">Click to upload</span> or drag and drop</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">PNG, JPG, GIF (MAX. 10MB)</p>
+                </div>
+                <input id="image-upload" type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+              </label>
+            </div>
           ) : (
-            <div className="space-y-4">
-              <div className="flex justify-center gap-2">
-                <Button
-                  onClick={() => {
-                    setExportFormat('plain');
-                    copyText('plain');
-                  }}
-                  variant={exportFormat === 'plain' ? 'default' : 'outline'}
-                >
-                  Plain Text
-                </Button>
-                <Button
-                  onClick={() => {
-                    setExportFormat('markdown');
-                    copyText('markdown');
-                  }}
-                  variant={exportFormat === 'markdown' ? 'default' : 'outline'}
-                >
-                  Markdown
-                </Button>
-              </div>
-              
-              <div className="border p-4 rounded-md bg-gray-50 dark:bg-gray-900">
-                <div className="bg-white dark:bg-gray-800 p-3 rounded border max-h-[200px] overflow-y-auto whitespace-pre-wrap">
-                  {extractedText || "No text could be extracted from this image."}
-                </div>
-              </div>
-              
-              <div className="flex justify-between">
-                <Button
-                  onClick={() => setShowTextExport(false)}
+            <div className="relative">
+              <img 
+                src={previewUrl!} 
+                alt="Selected" 
+                className="w-full h-auto rounded-lg max-h-[300px] object-contain mx-auto"
+              />
+              <div className="flex justify-center gap-2 mt-4">
+                <Button 
                   variant="outline"
+                  onClick={handleRemoveImage}
+                  size="sm"
                 >
-                  Back to Image
+                  <X className="w-4 h-4 mr-2" />
+                  Remove
                 </Button>
-                
-                <div className="flex gap-2">
-                  <Button 
-                    onClick={() => copyText(exportFormat)}
-                    variant="outline"
+                <Button
+                  variant="outline"
+                  onClick={() => document.getElementById('image-upload')?.click()}
+                  size="sm"
+                >
+                  <Upload className="w-4 h-4 mr-2" />
+                  Change
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setSelectRegion(!selectRegion)}
+                  size="sm"
+                  className={selectRegion ? 'bg-primary text-primary-foreground hover:bg-primary/90' : ''}
+                >
+                  <Square className="w-4 h-4 mr-2" />
+                  Select Region
+                </Button>
+              </div>
+              
+              <div className="flex flex-col justify-center mt-5 space-y-4">
+                <div className="flex justify-center space-x-4">
+                  <Button
+                    onClick={handleExtractText}
+                    disabled={isLoading}
+                    className="flex-1 max-w-[180px]"
                   >
-                    {copied ? <Check className="h-4 w-4 mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
-                    Copy to Clipboard
+                    {isLoading ? (
+                      <>
+                        <LoaderCircle className="w-4 h-4 mr-2 animate-spin" />
+                        Processing...
+                      </>
+                    ) : (
+                      'Extract Text'
+                    )}
                   </Button>
-                  <Button onClick={handleInsertIntoChat}>
-                    Insert into Chat
+                  <Button
+                    onClick={handleConvertToBase64}
+                    variant="outline"
+                    className="flex-1 max-w-[180px]"
+                  >
+                    Convert to Base64
                   </Button>
                 </div>
               </div>
+              
+              {extractedText && (
+                <div className="mt-6">
+                  <h3 className="mb-2 text-lg font-medium">Extracted Text:</h3>
+                  <div className="p-3 bg-gray-100 dark:bg-gray-800 rounded-md">
+                    <pre className="text-sm whitespace-pre-wrap">{extractedText}</pre>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
-
-        {/* No footer needed as controls are context-sensitive in the body */}
       </DialogContent>
     </Dialog>
   );
